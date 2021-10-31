@@ -19,7 +19,8 @@
 
 
 void Model::ojas_rule_openCL(std::vector<float> x) {
-    float y = ojas_y(x);
+    const float y = ojas_y(x);
+
     int exitcode;
     cl::Program program = createProgram("Kernels.cl");
     cl::Context context = program.getInfo<CL_PROGRAM_CONTEXT>();
@@ -30,24 +31,32 @@ void Model::ojas_rule_openCL(std::vector<float> x) {
 
 
     cl::Buffer buf_W(context,
-                     CL_MEM_READ_WRITE| CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
-                     sizeof(int) * _weights.size(),
+                     CL_MEM_READ_WRITE| CL_MEM_HOST_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                     sizeof(float) * _weights.size(),
                      _weights.data());
     cl::Buffer inBuf_X(context,
                        CL_MEM_READ_ONLY | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
-                       sizeof(int) * x.size(),
+                       sizeof(float) * x.size(),
                        x.data());
+
 
     kernel.setArg(0, inBuf_X);
     kernel.setArg(1, buf_W);
     kernel.setArg(2, y);
     kernel.setArg(3,_learning_rate);
 
-    cl::CommandQueue queue(context, device);
 
-    queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(_weights.size()));
-    queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(int) * _weights.size(), _weights.data());
+    cl::CommandQueue queue(context, device);
+    exitcode = queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(_weights.size()));
+    std::cout << exitcode << std::endl;
+    exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * _weights.size(), _weights.data());
+    std::cout << exitcode << std::endl;
+
     cl::finish();
+
+    for(int i = 0; i<3; ++i){
+        std::cout << _weights[i] << std::endl;
+    }
 }
 
 Model::Model(float learning_rate,int dims, const int *dim_sizes) : _learning_rate(learning_rate) {

@@ -15,9 +15,7 @@ int main() {
     Model model(0.05, w);
     model.ojas_rule_openCL(x);
 
-    for(int i = 0; i<3; ++i){
-        std::cout << model.getWeights()[i] << std::endl;
-    }
+
     return 0;
 }
 

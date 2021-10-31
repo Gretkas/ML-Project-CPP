@@ -3,9 +3,10 @@ void kernel squareArray(global int* input, global int* output) {
    output[gid] = input[gid] * input[gid];
 };
 
-void kernel ojasRule(global float* x, global float* w, global float* y, global float* learn_rate) {
+void kernel ojasRule(global float* x, global float* w, const float y, const float learning_rate) {
     size_t i = get_global_id(0);
-    w[i] += *learn_rate**y*(x[i] - (*y*w[i]));
+    float temp = x[i]- y*w[i];
+    w[i] = w[i] + learning_rate*y*temp;
 };
 
 

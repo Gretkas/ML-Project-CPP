@@ -34,7 +34,7 @@ int main() {
     cl::CommandQueue queue(context, device);
 
     queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(inVec.size()));
-    queue.enqueueReadBuffer(outBuf, CL_TRUE, 0, sizeof(int) * outVec.size(), outVec.data());
+    queue.enqueueReadBuffer(outBuf, GL_TRUE, 0, sizeof(int) * outVec.size(), outVec.data());
 
     for (std::vector<int>::const_iterator i = outVec.begin(); i != outVec.end(); ++i)
         std::cout << *i << std::endl;
