@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(ML_project_cpp)
 
-set(CMAKE_CXX_STANDARD 14)
 
 
 
@@ -34,7 +33,8 @@ set (CMAKE_CXX_STANDARD 17)
 set (CLKernelName "Kernels")
 
 # Specify the executable ant its source files
-add_executable(ML_project_cpp src/main.cpp src/Model.cpp src/Model.h src/ClHelper.cpp src/ClHelper.h)
+add_executable(ML_project_cpp src/main.cpp src/Model.cpp src/Model.h src/ClHelper.cpp src/ClHelper.h src/main.cpp)
+
 #target_sources (HostApplication
 #        PRIVATE
 #        someSource.cpp
