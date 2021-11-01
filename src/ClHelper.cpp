@@ -15,21 +15,6 @@
 #include <CL/cl.h>
 #endif
 
-/*
- __kernel void oja(
-    __global float* X,
-    __global float* Y,
-    __global float* S,
-    __global int *A)
-{
-
-}
-
-
- */
-
-
-
 cl::Program createProgram( const std::string& file){
     std::vector<cl::Platform> platforms;
     cl::Platform::get(&platforms);

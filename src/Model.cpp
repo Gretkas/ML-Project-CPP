@@ -7,6 +7,7 @@
 #include <utility>
 #include <iostream>
 
+
 #ifdef __APPLE__ //Mac OSX has a different name for the header file
 #include <OpenCL/opencl.hpp>
 #include <fstream>
@@ -59,16 +60,16 @@ void Model::ojas_rule_openCL(std::vector<float> x) {
     }
 }
 
-Model::Model(float learning_rate,int dims, const int *dim_sizes) : _learning_rate(learning_rate) {
-    int memsize = 0;
-    for(int i = 0; i<dims; ++i){
-        memsize += *(dim_sizes + i);
+Model::Model(float learning_rate, std::vector<int> &dim_sizes) : _learning_rate(learning_rate), _dim_sizes(std::move(dim_sizes)) {
+    int memsize = 1;
+    for(int i = 0; i<_dim_sizes.size(); ++i){
+        memsize *= _dim_sizes[i];
     }
     _weights.reserve(memsize);
     std::fill(_weights.begin(), _weights.end(), 1);
 }
 
-Model::Model(float learning_rate, std::vector<float> initial_weights) : _learning_rate(learning_rate)  {
+Model::Model(float learning_rate, std::vector<float> initial_weights, std::vector<int> &dim_sizes) : _learning_rate(learning_rate), _dim_sizes(std::move(dim_sizes))  {
     _weights = std::move(initial_weights);
 }
 
@@ -82,4 +83,8 @@ float Model::ojas_y(std::vector<float> x) {
 
 const std::vector<float> &Model::getWeights() const {
     return _weights;
+}
+
+Model::Model(float learning_rate, std::vector<float> initial_weights) : _learning_rate(learning_rate),  _dim_sizes(1,(int) initial_weights.size())  {
+    _weights = std::move(initial_weights);
 }

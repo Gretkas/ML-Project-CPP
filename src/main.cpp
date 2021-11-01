@@ -14,8 +14,6 @@ int main() {
     std::vector<float> x(3,2);
     Model model(0.05, w);
     model.ojas_rule_openCL(x);
-
-
     return 0;
 }
 
