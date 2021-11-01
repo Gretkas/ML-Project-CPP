@@ -15,4 +15,3 @@
 #endif //ML_PROJECT_CPP_CLHELPER_H
 cl::Program createProgram(const std::string& file);
 
-

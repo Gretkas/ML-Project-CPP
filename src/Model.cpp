@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <utility>
 #include <iostream>
-
+#include <math.h>
 
 #ifdef __APPLE__ //Mac OSX has a different name for the header file
 #include <OpenCL/opencl.hpp>
@@ -58,10 +58,6 @@ void Model::ojas_rule_openCL(float* x, int length) {
 
 
     cl::finish();
-
-    for(int i = 0; i<memsize_w; ++i){
-        std::cout << *(_weights + i)  << std::endl;
-    }
 }
 
 Model::Model(float learning_rate, std::vector<int> &dim_sizes) : _learning_rate(learning_rate), _dim_sizes(std::move(dim_sizes)) {
@@ -72,7 +68,7 @@ Model::Model(float learning_rate, std::vector<int> &dim_sizes) : _learning_rate(
 
     auto* arr = static_cast<float *>(malloc(memsize * sizeof(float *)));
     for(int i = 0; i < memsize; ++i){
-        *(arr+i) = 1;
+        *(arr+i) = 0.1;
     }
     _weights = arr;
 }
@@ -99,6 +95,90 @@ const std::vector<int> &Model::getDimSizes() const {
 
 float *Model::getWeights() const {
     return _weights;
+}
+
+void Model::decorrelated_hebbian_learning_openCL(float *x, int length) {
+    //what the fuck even is this
+
+}
+
+Model::~Model() {
+    free(_weights);
+}
+
+float* Model::dhl_y(const float *x, int length) {
+    auto* y = static_cast<float *>(malloc(length * sizeof(float *)));
+    int i;
+    float m, sum, constant;
+
+    m = 0;
+    for (i = 0; i < length; ++i) {
+        if (m < y[i]) {
+            m = y[i];
+        }
+    }
+
+    sum = 0.0;
+    for (i = 0; i < length; ++i) {
+        sum += exp(-abs(x[i] - _weights[i]));
+    }
+
+    constant = m + log(sum);
+    for (i = 0; i < length; ++i) {
+        y[i] = exp(y[i] - constant);
+    }
+    return 0;
+}
+
+float Model::dhl_y_dot(const float *y, int length) {
+    float y_dot = 0;
+    for(int i = 0; i < length; ++i){
+        y_dot += *(y+i) * (*(y+i));
+    }
+    return y_dot;
+}
+
+
+//calculates quotient of dhl y
+float Model::dhl_y_helper_quotient(const float *x, int length) {
+    const float y = ojas_y(x, length);
+    int exitcode;
+    cl::Program program = createProgram("Kernels.cl");
+    cl::Context context = program.getInfo<CL_PROGRAM_CONTEXT>();
+    auto devices = program.getInfo<CL_PROGRAM_DEVICES>();
+    auto device = devices.front();
+    cl::Kernel kernel(program, "dhl_y_helper_quotient", &exitcode);
+    assert(exitcode == CL_SUCCESS);
+
+    int memsize_w = 1;
+    for(int _dim_size : _dim_sizes){
+        memsize_w *= _dim_size;
+    }
+
+    cl::Buffer buf_W(context,
+                     CL_MEM_READ_WRITE| CL_MEM_HOST_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                     sizeof(float) * memsize_w,
+                     (void *)_weights);
+    cl::Buffer inBuf_X(context,
+                       CL_MEM_READ_ONLY | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
+                       sizeof(float) * length,
+                       (void *)x);
+
+
+    kernel.setArg(0, inBuf_X);
+    kernel.setArg(1, buf_W);
+    kernel.setArg(2, y);
+    kernel.setArg(3,_learning_rate);
+
+
+    cl::CommandQueue queue(context, device);
+    exitcode = queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(memsize_w));
+    std::cout << exitcode << std::endl;
+    exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)_weights);
+    std::cout << exitcode << std::endl;
+
+
+    cl::finish();
 }
 
 

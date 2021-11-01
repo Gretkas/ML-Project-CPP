@@ -11,10 +11,16 @@
 #endif
 int main() {
     std::vector<int> dim(2,3);
-    std::array<std::array<float, 3>,3> x = {{{2.0,2.0,2.0}, {2.0,2.0,2.0}, {2.0,2.0,2.0}}};
+    //use numbers between 0 and 1 or bad things happen
+    std::array<std::array<float, 3>,3> x = {{{0.5,0.5,0.5}, {0.5,0.5,0.5}, {0.5,0.5,0.5}}};
     Model model(0.05, dim);
+    for(int i = 0; i<100; ++i){
+        model.ojas_rule_openCL((float *)x.data(), 9);
+    }
 
-    model.ojas_rule_openCL((float *)x.data(), 9);
+    for(int i = 0; i<9; ++i){
+        std::cout << *(model.getWeights() + i)  << std::endl;
+    }
     return 0;
 }
 //
