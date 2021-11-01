@@ -10,11 +10,12 @@
 #include <CL/cl.h>
 #endif
 int main() {
-    std::vector<float> w(3,1);
-    std::vector<float> x(3,2);
-    Model model(0.05, w);
-    model.ojas_rule_openCL(x);
+    std::vector<int> dim(2,3);
+    std::array<std::array<float, 3>,3> x = {{{2.0,2.0,2.0}, {2.0,2.0,2.0}, {2.0,2.0,2.0}}};
+    Model model(0.05, dim);
+
+    model.ojas_rule_openCL((float *)x.data(), 9);
     return 0;
 }
-
+//
 

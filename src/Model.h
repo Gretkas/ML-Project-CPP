@@ -8,18 +8,22 @@
 
 class Model {
 public:
-    Model(float learning_rate, std::vector<float> initial_weights);
-    Model(float learning_rate, std::vector<float> initial_weights, std::vector<int> &dim_sizes);
+    Model(float learning_rate, float* initial_weights, std::vector<int> &dim_sizes);
     Model(float learning_rate, std::vector<int> &dim_sizes);
     const float _learning_rate;
     const std::vector<int> _dim_sizes;
-    std::vector<float> _weights;
-    void ojas_rule_openCL(std::vector<float> x);
-    [[nodiscard]] const std::vector<float> &getWeights() const;
+    float* _weights;
+    void ojas_rule_openCL(float* x, int length);
+
+    const float getLearningRate() const;
+
+    const std::vector<int> &getDimSizes() const;
+
+    float *getWeights() const;
 
 
 private:
-    float ojas_y(std::vector<float> x);
+    float ojas_y(const float* x, int length);
 };
 
 
