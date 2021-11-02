@@ -140,21 +140,18 @@ float Model::dhl_y_dot(const float *y, int length) {
 
 
 //calculates quotient of dhl y
-float Model::dhl_y_helper_quotient(const float *x, int length) {
-    const float y = ojas_y(x, length);
+float Model::dhl_y_helper_exponent(const float *x, int length) {
     int exitcode;
     cl::Program program = createProgram("Kernels.cl");
     cl::Context context = program.getInfo<CL_PROGRAM_CONTEXT>();
     auto devices = program.getInfo<CL_PROGRAM_DEVICES>();
     auto device = devices.front();
-    cl::Kernel kernel(program, "dhl_y_helper_quotient", &exitcode);
+    cl::Kernel kernel(program, "dhl_y_helper_exponent", &exitcode);
     assert(exitcode == CL_SUCCESS);
-
     int memsize_w = 1;
     for(int _dim_size : _dim_sizes){
         memsize_w *= _dim_size;
     }
-
     cl::Buffer buf_W(context,
                      CL_MEM_READ_WRITE| CL_MEM_HOST_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                      sizeof(float) * memsize_w,
@@ -163,22 +160,22 @@ float Model::dhl_y_helper_quotient(const float *x, int length) {
                        CL_MEM_READ_ONLY | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
                        sizeof(float) * length,
                        (void *)x);
+    cl::Buffer outbuf(context,
+                       CL_MEM_READ_ONLY | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
+                       sizeof(float) * memsize_w,
+                      (void *)_weights);
 
 
     kernel.setArg(0, inBuf_X);
     kernel.setArg(1, buf_W);
-    kernel.setArg(2, y);
-    kernel.setArg(3,_learning_rate);
-
-
+    kernel.setArg(2, outbuf);
+    kernel.setArg(3, _dim_sizes[0]);
+    kernel.setArg(4, _dim_sizes[1]); //TODO no idea what this is supposed to be, ask Ole
     cl::CommandQueue queue(context, device);
     exitcode = queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(memsize_w));
-    std::cout << exitcode << std::endl;
-    exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)_weights);
-    std::cout << exitcode << std::endl;
-
-
     cl::finish();
+
+
 }
 
 

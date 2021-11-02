@@ -9,18 +9,27 @@ void kernel ojasRule(global float* x, global float* w, const float y, const floa
     w[i] = w[i] + learning_rate*y*temp;
 };
 
-void kernel dhl_y_helper_quotient(global const float*, local float* localReduction const int sigma, float* out){
+void kernel dhl_y_helper_quotient(global float* exponents, local float* localReduction, global float* out){
     size_t gid = get_global_id(0);
     size_t lid = get_local_id(0);
     size_t l_size = get_local_size(0);
+    localReduction[lid] = exponents[gid];
+    barrier(CLK_LOCAL_MEM_FENCE);
+    for(int i = l_size >> 1; i>0; i>>=1){
+            if(lid < i){
+                localReduction[lid] += localReduction[lid+i];
+            }
+            barrier(CLK_LOCAL_MEM_FENCE);
+        }
 
+    if(lid == 0){
+        out[get_group_id(0)] = localReduction[0];
+    }
 }
 
-void kernel dhl_y_helper_exponent(global const float*, local float* localReduction const int sigma, float* out){
+void kernel dhl_y_helper_exponent(global float* x, global float* w, global float* out, const int len, const int sigma){
     size_t gid = get_global_id(0);
-    size_t lid = get_local_id(0);
-    size_t l_size = get_local_size(0);
-
+    out[gid] = (-pow(fabs(x[gid%len] - w[gid]),2))/sigma;
 }
 void kernel decorrelatedHebbianLearning(
     global float* x,
