@@ -30,9 +30,9 @@ public:
 private:
     float ojas_y(const float* x, int length);
     float* dhl_y(const float* x, int length);
-    float dhl_y_helper_quotient(const float* x, int length);
-    float dhl_y_helper_exponent(const float* x, int length);
-    static float dhl_y_dot(const float* y, int length);
+    float dhl_y_helper_quotient(float* exponents);
+    float* dhl_y_helper_exponent_vector(const float* x, int length);
+    float* dhl_y_dot(float* y);
 
 };
 
