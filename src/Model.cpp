@@ -30,6 +30,7 @@ void Model::ojas_rule_openCL(float* x, int length) {
     assert(exitcode == CL_SUCCESS);
 
     int memsize_w = 1;
+
     for(int _dim_size : _dim_sizes){
         memsize_w *= _dim_size;
     }
@@ -139,7 +140,7 @@ void Model::decorrelated_hebbian_learning_openCL(float *x, int length) {
     exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)_weights);
     //std::cout << exitcode << std::endl;
     cl::finish();
-
+    free(y);
 }
 
 Model::~Model() {
@@ -154,6 +155,8 @@ float* Model::dhl_y(const float *x, int length) {
     for(int i = 0; i< _dim_sizes[0]; ++i){
         y[i] = exponents[i]/quotient;
     }
+
+    free(exponents);
     return y;
 }
 
@@ -221,7 +224,7 @@ float* Model::dhl_y_helper_exponent_vector(const float *x, int length) {
         exponents[i] = -abs(pow(exponents[i],2))/_dim_sizes[1]; //TODO no idea what this is supposed to be, ask Ole
 
     }
-
+    free(outvec);
     return exponents;
 }
 
