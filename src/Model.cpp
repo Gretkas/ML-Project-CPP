@@ -68,7 +68,7 @@ Model::Model(float learning_rate, std::vector<int> &dim_sizes) : _learning_rate(
 
     auto* arr = static_cast<float *>(malloc(memsize * sizeof(float *)));
     for(int i = 0; i < memsize; ++i){
-        *(arr+i) = 0.1;
+        *(arr+i) = 0.9;
     }
     _weights = arr;
 }
@@ -99,9 +99,6 @@ float *Model::getWeights() const {
 
 void Model::decorrelated_hebbian_learning_openCL(float *x, int length) {
     float* y = dhl_y_dot(dhl_y(x, length));
-    for(int i = 0; i < _dim_sizes[0]; ++i){
-        std::cout << y[i] << std::endl;
-    }
     int exitcode;
     cl::Program program = createProgram("Kernels.cl");
     cl::Context context = program.getInfo<CL_PROGRAM_CONTEXT>();
@@ -141,8 +138,6 @@ void Model::decorrelated_hebbian_learning_openCL(float *x, int length) {
     //std::cout << exitcode << std::endl;
     exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)_weights);
     //std::cout << exitcode << std::endl;
-
-
     cl::finish();
 
 }
@@ -185,7 +180,7 @@ float* Model::dhl_y_helper_exponent_vector(const float *x, int length) {
         memsize_w *= _dim_size;
     }
 
-    auto* outvec = static_cast<float *>(malloc(memsize_w * sizeof(float *)));
+    auto* outvec = static_cast<float *>(malloc(memsize_w * sizeof(float* )));
     cl::Buffer buf_W(context,
                      CL_MEM_READ_ONLY| CL_MEM_HOST_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                      sizeof(float) * memsize_w,
@@ -204,24 +199,29 @@ float* Model::dhl_y_helper_exponent_vector(const float *x, int length) {
     kernel_vector.setArg(1, buf_W);
     kernel_vector.setArg(2, outbuf);
     kernel_vector.setArg(3, length);
-    kernel_vector.setArg(4, _dim_sizes[1]); //TODO no idea what this is supposed to be, ask Ole
     cl::CommandQueue queue(context, device);
     exitcode = queue.enqueueNDRangeKernel(kernel_vector, cl::NullRange, cl::NDRange(memsize_w));
     exitcode = queue.enqueueReadBuffer(outbuf, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)outvec);
     cl::finish();
+
 
     // outvec has same dimentions as w at this point, needs to be reduced to _dim_size[0]
 
     //TODO implement this on GPU, hard for input that doesnt have size of 2^n, and slower for x length * _dim_sizes[0] < 10^6
     //TODO if quotient is worth implementing on GPU, pad exponents with 0s to allow for parallel sum reduction
     auto* exponents = static_cast<float *>(malloc(_dim_sizes[0] * sizeof(float *)));
+    for(int i = 0; i<_dim_sizes[0]; ++i){
+        exponents[i] = 0;
+    }
     for(int i = 0; i< _dim_sizes[0]; ++i){
         for(int j = 0; j<length; ++j){
             exponents[i] += outvec[i*length+j];
         }
 
+        exponents[i] = -abs(pow(exponents[i],2))/_dim_sizes[1]; //TODO no idea what this is supposed to be, ask Ole
 
     }
+
     return exponents;
 }
 
@@ -242,9 +242,11 @@ float* Model::dhl_y_dot(float *y) {
     for(int i = 0; i < _dim_sizes[0]; ++i){
         y_dot += y[i] * y[i];
     }
+
     for(int i = 0; i < _dim_sizes[0]; ++i){
         y[i] = y[i]*_learning_rate * (y[i] - y_dot) ;
     }
+
     return y;
 }
 

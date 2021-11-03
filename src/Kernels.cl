@@ -45,9 +45,10 @@ void kernel dhl_y_helper_calc_quotient(global float* exponents, local float* loc
     }
 }
 
-void kernel dhl_y_helper_calc_exponent_vector(global float* x, global float* w, global float* out, const int len, const int sigma){
+void kernel dhl_y_helper_calc_exponent_vector(global float* x, global float* w, global float* out, const int len){
     size_t gid = get_global_id(0);
-    out[gid] = (-pow(fabs(x[gid%len] - w[gid]),2))/sigma;
+    out[gid] = x[gid%len] - w[gid];
+
 }
 void kernel decorrelatedHebbianLearning(
     global float* x,
