@@ -5,25 +5,35 @@
 #ifndef ML_PROJECT_CPP_MODEL_H
 #define ML_PROJECT_CPP_MODEL_H
 
-
+//weights are stored in one dimension and use dim sizes for tensor operations
+//implemented this way in order to ensure contiguous memory, speed should be same
 class Model {
 public:
     Model(float learning_rate, float* initial_weights, std::vector<int> &dim_sizes);
     Model(float learning_rate, std::vector<int> &dim_sizes);
+
+    virtual ~Model();
+
     const float _learning_rate;
     const std::vector<int> _dim_sizes;
     float* _weights;
     void ojas_rule_openCL(float* x, int length);
+    void decorrelated_hebbian_learning_openCL(float* x, int length);
 
-    const float getLearningRate() const;
+    [[nodiscard]] const float getLearningRate() const;
 
-    const std::vector<int> &getDimSizes() const;
+    [[nodiscard]] const std::vector<int> &getDimSizes() const;
 
-    float *getWeights() const;
+    [[nodiscard]] float *getWeights() const;
 
 
 private:
     float ojas_y(const float* x, int length);
+    float* dhl_y(const float* x, int length);
+    float dhl_y_helper_quotient(float* exponents);
+    float* dhl_y_helper_exponent_vector(const float* x, int length);
+    float* dhl_y_dot(float* y);
+
 };
 
 
