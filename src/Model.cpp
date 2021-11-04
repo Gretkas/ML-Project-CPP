@@ -161,15 +161,10 @@ float* Model::dhl_y(const float *x, int length) {
 }
 
 
-
-
-
-
 float* Model::dhl_y_helper_exponent_vector(const float *x, int length) {
     if(length != _dim_sizes[0] ){
         throw "dimension mismatch";
     }
-
 
     int exitcode;
     cl::Program program = createProgram("Kernels.cl");
