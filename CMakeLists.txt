@@ -33,7 +33,7 @@ set (CMAKE_CXX_STANDARD 17)
 set (CLKernelName "Kernels")
 
 # Specify the executable ant its source files
-add_executable(ML_project_cpp src/main.cpp src/Model.cpp src/Model.h src/ClHelper.cpp src/ClHelper.h src/main.cpp)
+add_executable(ML_project_cpp src/main.cpp src/Model.cpp src/Model.h src/ClHelper.cpp src/ClHelper.h src/main.cpp src/MNIST/mnist_loader.cpp src/MNIST/mnist_loader.h)
 
 #target_sources (HostApplication
 #        PRIVATE

@@ -161,10 +161,15 @@ float* Model::dhl_y(const float *x, int length) {
 }
 
 
+
+
+
+
 float* Model::dhl_y_helper_exponent_vector(const float *x, int length) {
     if(length != _dim_sizes[0] ){
         throw "dimension mismatch";
     }
+
 
     int exitcode;
     cl::Program program = createProgram("Kernels.cl");
@@ -214,9 +219,11 @@ float* Model::dhl_y_helper_exponent_vector(const float *x, int length) {
     for(int i = 0; i< _dim_sizes[0]; ++i){
         for(int j = 0; j<length; ++j){
             exponents[i] += outvec[i*length+j];
+
+
         }
 
-        exponents[i] = -abs(pow(exponents[i],2))/_dim_sizes[1]; //TODO no idea what this is supposed to be, ask Ole
+        exponents[i] = -abs(pow(exponents[i],2))/memsize_w; //TODO no idea what this is supposed to be, ask Ole
 
     }
     free(outvec);
@@ -247,7 +254,3 @@ float* Model::dhl_y_dot(float *y) {
 
     return y;
 }
-
-
-
-
