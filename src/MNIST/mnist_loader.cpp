@@ -89,3 +89,10 @@ void mnist_loader::load_labels(std::string label_file, int num)
 
     ifs.close();
 }
+
+void mnist_loader::trim_images() {
+    for(int i = 0; i<m_images.size(); ++i){
+        m_images[i].resize(m_images[i].size()-10);
+    }
+
+}

@@ -27,6 +27,8 @@ public:
 
     std::vector<float> images(int id) { return m_images[id]; }
     int labels(int id) { return m_labels[id]; }
+
+    void trim_images();
 };
 
 #endif
