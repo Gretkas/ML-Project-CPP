@@ -7,6 +7,7 @@
 #include <utility>
 #include <iostream>
 #include <math.h>
+#include <stdlib.h>
 
 #ifdef __APPLE__ //Mac OSX has a different name for the header file
 #include <OpenCL/opencl.hpp>
@@ -69,9 +70,10 @@ Model::Model(float learning_rate, std::vector<int> &dim_sizes) : _learning_rate(
 
     auto* arr = static_cast<float *>(malloc(memsize * sizeof(float *)));
     for(int i = 0; i < memsize; ++i){
-        *(arr+i) = 0.9;
+        arr[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     }
     _weights = arr;
+
 }
 
 Model::Model(float learning_rate, float* initial_weights, std::vector<int> &dim_sizes) : _learning_rate(learning_rate), _dim_sizes(std::move(dim_sizes))  {
@@ -136,9 +138,7 @@ void Model::decorrelated_hebbian_learning_openCL(float *x, int length) {
 
     cl::CommandQueue queue(context, device);
     exitcode = queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(memsize_w));
-    //std::cout << exitcode << std::endl;
     exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)_weights);
-    //std::cout << exitcode << std::endl;
     cl::finish();
     free(y);
 }
@@ -166,7 +166,7 @@ float* Model::dhl_y(const float *x, int length) {
 
 
 float* Model::dhl_y_helper_exponent_vector(const float *x, int length) {
-    if(length != _dim_sizes[0] ){
+    if(length != _dim_sizes[1] ){
         throw "dimension mismatch";
     }
 
@@ -217,14 +217,28 @@ float* Model::dhl_y_helper_exponent_vector(const float *x, int length) {
         exponents[i] = 0;
     }
     for(int i = 0; i< _dim_sizes[0]; ++i){
+
         for(int j = 0; j<length; ++j){
-            exponents[i] += outvec[i*length+j];
+
+            exponents[i] += -pow(outvec[i*length+j],2);
+
         }
 
-        exponents[i] = -abs(pow(exponents[i],2))/_dim_sizes[1]; //TODO no idea what this is supposed to be, ask Ole
+        exponents[i] = exponents[i]/25; //TODO no idea what this is supposed to be, ask Ole
+        /*if (isinf(exponents[i])) {
+            std::cout << "------------" << std::endl;
+            for (int j = 0; j < memsize_w; ++j) {
+
+                std::cout << outvec[j] << std::endl;
+
+            }
+            std::cout << "------------" << std::endl;
+        }*/
 
     }
     free(outvec);
+
+
     return exponents;
 }
 
@@ -248,11 +262,8 @@ float* Model::dhl_y_dot(float *y) {
 
     for(int i = 0; i < _dim_sizes[0]; ++i){
         y[i] = y[i]*_learning_rate * (y[i] - y_dot) ;
+
     }
 
     return y;
 }
-
-
-
-
