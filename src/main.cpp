@@ -10,6 +10,13 @@
 #else
 #include <CL/cl.h>
 #endif
+
+
+void printweights(){
+    
+}
+
+
 int main() {
 
     mnist_loader train("dataset/train-images-idx3-ubyte",
