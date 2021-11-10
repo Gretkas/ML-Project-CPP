@@ -12,8 +12,22 @@
 #endif
 
 
-void printweights(){
-    
+void printweights(const Model& m){
+    int size = m.getDimSizes()[1];
+    for(int j = 0; j < m.getDimSizes()[0]; ++j){
+        std::string out;
+        for(int i = 0; i < size; ++i){
+            if(i%25 == 24){
+                out += std::to_string(m.getWeights()[25*j+i]);
+                std::cout << out << std::endl;
+                out = "";
+            }
+            else{
+                out += std::to_string(m.getWeights()[25*j+i]) + " ";
+            }
+        }
+    }
+
 }
 
 
@@ -28,21 +42,14 @@ int main() {
     //std::array<std::array<float, 3>,3> x = {{{0.5,0.5,0.5}, {0.5,0.5,0.5}, {0.5,0.5,0.5}}};
     std::vector<int> dim = {25, 25};
     //use numbers between 0 and 1 or bad things happen
-    Model model(0.05, dim);
+    Model model(1, dim);
+    printweights(model);
 
-    for(int i = 0; i<10; ++i){
-
-        for(int j = 0; j < 775; j += 25){
-            model.decorrelated_hebbian_learning_openCL(train.images(i).data()+j, 25);
-        }
+    for(int i = 0; i<100; ++i){
+        model.decorrelated_hebbian_learning_openCL(train.image_segment().data(), 25);
+        printweights(model);
     }
 
-
-
-
-    for(int i = 0; i< 25; i++){
-        std::cout<< model.getWeights()[i] << std::endl;
-    }
 
     return 0;
 }

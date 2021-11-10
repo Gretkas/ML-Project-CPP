@@ -69,6 +69,7 @@ Model::Model(float learning_rate, std::vector<int> &dim_sizes) : _learning_rate(
     }
 
     auto* arr = static_cast<float *>(malloc(memsize * sizeof(float *)));
+    srand(time(nullptr));
     for(int i = 0; i < memsize; ++i){
         arr[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     }
@@ -224,16 +225,7 @@ float* Model::dhl_y_helper_exponent_vector(const float *x, int length) {
 
         }
 
-        exponents[i] = exponents[i]/25; //TODO no idea what this is supposed to be, ask Ole
-        /*if (isinf(exponents[i])) {
-            std::cout << "------------" << std::endl;
-            for (int j = 0; j < memsize_w; ++j) {
-
-                std::cout << outvec[j] << std::endl;
-
-            }
-            std::cout << "------------" << std::endl;
-        }*/
+        exponents[i] = exponents[i]/25; //TODO look for ways which allow lower sigma values
 
     }
     free(outvec);
@@ -247,7 +239,9 @@ float Model::dhl_y_helper_quotient(float *exponents) {
 
     float quotient = 0;
     for(int i = 0; i< _dim_sizes[0]; ++i){
-        quotient += exp(exponents[i]);
+
+        quotient += exp(exponents[i]); //TODO if sigma is low this becomes 0, is it fixable?
+
     }
 
     return quotient;
@@ -257,10 +251,11 @@ float Model::dhl_y_helper_quotient(float *exponents) {
 float* Model::dhl_y_dot(float *y) {
     float y_dot = 0;
     for(int i = 0; i < _dim_sizes[0]; ++i){
-        y_dot += y[i] * y[i];
+        y_dot += y[i] * y[i];    //TODO if sigma is low this becomes inf, is it fixable?
     }
 
     for(int i = 0; i < _dim_sizes[0]; ++i){
+
         y[i] = y[i]*_learning_rate * (y[i] - y_dot) ;
 
     }
