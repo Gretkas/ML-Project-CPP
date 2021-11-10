@@ -90,9 +90,20 @@ void mnist_loader::load_labels(std::string label_file, int num)
     ifs.close();
 }
 
-void mnist_loader::trim_images() {
-    for(int i = 0; i<m_images.size(); ++i){
-        m_images[i].resize(m_images[i].size()-10);
+std::vector<float> mnist_loader::image_segment() {
+    srand(time(nullptr));
+    int image_number = rand() % m_images.size();
+    int x_index =  rand() % 24;
+    int y_index =  rand() % 24;
+    std::vector<float> out;
+    auto image = images(image_number);
+    for(int i = 0; i<5; ++i){
+        for(int j = 0; j<5; ++j){
+            out.emplace_back(image[(x_index+i*28) + (y_index+j)]);
+        }
     }
+    return image;
 
 }
+
+
