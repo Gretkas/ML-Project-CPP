@@ -1,3 +1,4 @@
+#include "../src/MNIST/mnist_loader.cpp"
 #include <iostream>
 
 __global__ void ojas_rule(float *x, float *w, const float y, const float learning_rate) {
@@ -6,7 +7,8 @@ __global__ void ojas_rule(float *x, float *w, const float y, const float learnin
   w[i] = w[i] + learning_rate * y * temp;
 };
 
-int main() {
+__host__ void run_ojas() {
+
   const int n = 0; //length of arrays
   const float y = 0;
   const float learning_rate = 0;
@@ -32,4 +34,31 @@ int main() {
   cudaFree(c_x);
   free(w);
   free(x);
+}
+
+__host__ void load_data() {
+  mnist_loader train("../../train-images-idx3-ubyte",
+                     "../../train-labels-idx1-ubyte", 100);
+  mnist_loader test("../../t10k-images-idx3-ubyte",
+                    "../../t10k-labels-idx1-ubyte", 100);
+
+  int rows = train.rows();
+  int cols = train.cols();
+  int label = train.labels(0);
+  std::vector<float> image = train.images(0);
+
+  std::cout << "label: " << label << std::endl;
+  std::cout << "image: " << std::endl;
+  for (int y = 0; y < rows; ++y) {
+    for (int x = 0; x < cols; ++x) {
+      std::cout << ((image[y * cols + x] == 0.0) ? ' ' : '*');
+    }
+    std::cout << std::endl;
+  }
+}
+
+int main() {
+
+  load_data();
+  //run_ojas();
 }
