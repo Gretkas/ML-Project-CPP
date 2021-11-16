@@ -18,12 +18,12 @@ void printweights(const Model& m){
         std::string out;
         for(int i = 0; i < size; ++i){
             if(i%25 == 24){
-                out += std::to_string(m.getWeights()[25*j+i]);
+                out += std::to_string(m.getPoolWeights()[25*j+i]);
                 std::cout << out << std::endl;
                 out = "";
             }
             else{
-                out += std::to_string(m.getWeights()[25*j+i]) + " ";
+                out += std::to_string(m.getPoolWeights()[25*j+i]) + " ";
             }
         }
     }
@@ -46,6 +46,7 @@ int main() {
     printweights(model);
 
     for(int i = 0; i<100; ++i){
+        //auto res = model.ojas_rule_openCL(nullptr);
         model.decorrelated_hebbian_learning_openCL(train.image_segment().data(), 25);
         printweights(model);
     }
@@ -53,5 +54,3 @@ int main() {
 
     return 0;
 }
-//
-
