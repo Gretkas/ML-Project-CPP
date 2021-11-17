@@ -31,7 +31,7 @@
     * layers:
         * **convolution** = learn kernels (filters) via Oja's to create feature maps
         * **pooling** = reduce dimensionality and increase receptive field size via DHL (first approximation)
-        * **NN** = clustering (second DHL approximation). We decide its architecture, hyperparams etc etc
+        * **linear** = clustering (second DHL approximation). We decide its architecture, hyperparams etc etc
 *
 
 ## DHL paper break down
