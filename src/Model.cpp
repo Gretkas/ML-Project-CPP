@@ -30,15 +30,9 @@ void Model::ojas_rule_openCL(float* x, int length) {
     cl::Kernel kernel(program, "ojasRule", &exitcode);
     assert(exitcode == CL_SUCCESS);
 
-    int memsize_w = 1;
-
-    for(int _dim_size : _dim_sizes){
-        memsize_w *= _dim_size;
-    }
-
     cl::Buffer buf_W(context,
                      CL_MEM_READ_WRITE| CL_MEM_HOST_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                     sizeof(float) * memsize_w,
+                     sizeof(float) * _dim_sizes[0],
                      (void *)conv_weights);
     cl::Buffer inBuf_X(context,
                        CL_MEM_READ_ONLY | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
@@ -53,9 +47,9 @@ void Model::ojas_rule_openCL(float* x, int length) {
 
 
     cl::CommandQueue queue(context, device);
-    exitcode = queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(memsize_w));
+    exitcode = queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(_dim_sizes[0]));
     //std::cout << exitcode << std::endl;
-    exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)conv_weights);
+    exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * _dim_sizes[0], (void *)conv_weights);
     //std::cout << exitcode << std::endl;
 
 
@@ -73,11 +67,12 @@ Model::Model(float learning_rate, std::vector<int> &dim_sizes) : _learning_rate(
     for(int i = 0; i < memsize; ++i){
         pool_arr[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     }
-    auto* conv_arr = static_cast<float *>(malloc(memsize * sizeof(float *)));
-    srand(time(nullptr));
-    for(int i = 0; i < memsize; ++i){
+    auto* conv_arr = static_cast<float *>(malloc(_dim_sizes[0] * sizeof(float *)));
+    for(int i = 0; i < _dim_sizes[0]; ++i){
         conv_arr[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     }
+    initial_pool_weights = static_cast<float *>(malloc(memsize * sizeof(float *)));
+
     pool_weights = pool_arr;
     memcpy(initial_pool_weights, pool_weights, sizeof(float)*memsize);
     conv_weights = conv_arr;
@@ -86,7 +81,7 @@ Model::Model(float learning_rate, std::vector<int> &dim_sizes) : _learning_rate(
 float Model::ojas_y(const float* x, int length) {
     float y = 0;
     for(int i = 0; i < length; ++i){
-        y+= conv_weights[i] * (*(x + i));
+        y+= conv_weights[i] * x[i];
     }
     return y;
 }
@@ -231,7 +226,7 @@ float* Model::dhl_y_helper_exponent_vector(const float *x, int length) {
 
         }
 
-        exponents[i] = exponents[i]/25; //TODO look for ways which allow lower sigma values
+        exponents[i] = exponents[i]/5; //TODO look for ways which allow lower sigma values
 
     }
     free(outvec);

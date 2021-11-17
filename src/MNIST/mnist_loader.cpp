@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <assert.h>
+#include <random>
 
 mnist_loader::mnist_loader(std::string image_file,
                            std::string label_file,
@@ -91,19 +92,27 @@ void mnist_loader::load_labels(std::string label_file, int num)
 }
 
 std::vector<float> mnist_loader::image_segment() {
-    srand(time(nullptr));
-    int image_number = rand() % m_images.size();
-    int x_index =  rand() % 24;
-    int y_index =  rand() % 24;
+    std::random_device r;
+    std::seed_seq seed{r(), r(), r(), r(), r(), r(), r(), r()};
+    std::mt19937 eng(seed);
+
+    std::uniform_int_distribution<> dist{1,10000};
+
+    int image_number = dist(eng) % m_images.size();
+    int index =  dist(eng) % 529;
+
+
     std::vector<float> out;
     auto image = images(image_number);
     for(int i = 0; i<5; ++i){
         for(int j = 0; j<5; ++j){
-            out.emplace_back(image[(x_index+i*28) + (y_index+j)]);
+            out.emplace_back(image[(index+(i*28) + j)]);
         }
     }
-    return image;
+    return out;
 
 }
+
+
 
 
