@@ -29,6 +29,23 @@ void printweights(const Model& m){
     }
 
 }
+
+void printConvweights(const Model& m){
+    int size = m.getDimSizes()[1];
+    std::string out;
+    for(int i = 0; i < size; ++i){
+        if(i%25 == 24){
+            out += std::to_string(m.getConvWeights()[i]);
+            std::cout << out << std::endl;
+            out = "";
+        }
+        else{
+            out += std::to_string(m.getConvWeights()[i]) + " ";
+        }
+    }
+
+
+}
 void printbest(std::vector<int> best, const Model& m){
     for(int i = 0; i < best.size(); ++i){
         std::string out;
@@ -74,13 +91,14 @@ int main() {
     //std::array<std::array<float, 3>,3> x = {{{0.5,0.5,0.5}, {0.5,0.5,0.5}, {0.5,0.5,0.5}}};
     std::vector<int> dim = {25, 25};
     //use numbers between 0 and 1 or bad things happen
-    Model model(0.005, dim);
+    Model model(0.01, dim);
     //printweights( model);
 
     for(int i = 0; i<10000; ++i){
         //model.ojas_rule_openCL(train.image_segment().data(), 25);
         model.decorrelated_hebbian_learning_openCL(train.image_segment().data(), 25);
         if(i%100 == 0){
+
             printweights(model);
 
         }
@@ -88,6 +106,7 @@ int main() {
     }
 
 
+    // x_vec -> DHL w = n vec
 
     return 0;
 }

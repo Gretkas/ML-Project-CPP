@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <random>
+
 
 class mnist_loader {
 private:
@@ -11,6 +13,11 @@ private:
     int m_size;
     int m_rows;
     int m_cols;
+    std::random_device r;
+    std::seed_seq seed{r(), r(), r(), r(), r(), r(), r(), r()};
+    std::mt19937 eng;
+
+    std::uniform_int_distribution<> dist{1,10000};
 
     void load_images(std::string file, int num=0);
     void load_labels(std::string file, int num=0);

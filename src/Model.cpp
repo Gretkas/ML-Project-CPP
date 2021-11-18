@@ -61,21 +61,17 @@ Model::Model(float learning_rate, std::vector<int> &dim_sizes) : _learning_rate(
     for(int _dim_size : _dim_sizes){
         memsize *= _dim_size;
     }
-
-    auto* pool_arr = static_cast<float *>(malloc(memsize * sizeof(float *)));
     srand(time(nullptr));
+    pool_weights = static_cast<float *>(malloc(memsize * sizeof(float *)));
     for(int i = 0; i < memsize; ++i){
-        pool_arr[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        pool_weights[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     }
-    auto* conv_arr = static_cast<float *>(malloc(_dim_sizes[0] * sizeof(float *)));
+    conv_weights = static_cast<float *>(malloc(_dim_sizes[0] * sizeof(float *)));
     for(int i = 0; i < _dim_sizes[0]; ++i){
-        conv_arr[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        conv_weights[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     }
     initial_pool_weights = static_cast<float *>(malloc(memsize * sizeof(float *)));
-
-    pool_weights = pool_arr;
     memcpy(initial_pool_weights, pool_weights, sizeof(float)*memsize);
-    conv_weights = conv_arr;
 
 }
 float Model::ojas_y(const float* x, int length) {
@@ -147,6 +143,8 @@ void Model::decorrelated_hebbian_learning_openCL(float *x, int length) {
 
 Model::~Model() {
     free(pool_weights);
+    free(conv_weights);
+    free(initial_pool_weights);
 }
 
 float* Model::dhl_y(const float *x, int length) {
@@ -155,7 +153,10 @@ float* Model::dhl_y(const float *x, int length) {
     auto* y = static_cast<float *>(malloc(length * sizeof(float *)));
 
     for(int i = 0; i< _dim_sizes[0]; ++i){
-        y[i] = exponents[i]/quotient;
+
+        y[i] = exp(exponents[i])/quotient;
+
+
     }
 
     free(exponents);
@@ -221,13 +222,11 @@ float* Model::dhl_y_helper_exponent_vector(const float *x, int length) {
     for(int i = 0; i< _dim_sizes[0]; ++i){
 
         for(int j = 0; j<length; ++j){
-
             exponents[i] += -pow(outvec[i*length+j],2);
 
         }
 
-        exponents[i] = exponents[i]/5; //TODO look for ways which allow lower sigma values
-
+        exponents[i] = exponents[i]/0.5; //TODO look for ways which allow lower sigma values
     }
     free(outvec);
 
@@ -251,9 +250,11 @@ float Model::dhl_y_helper_quotient(float *exponents) {
 //calculates  (y - sum y^2) * learning_rate * y
 float* Model::dhl_y_dot(float *y) {
     float y_dot = 0;
+
     for(int i = 0; i < _dim_sizes[0]; ++i){
         y_dot += y[i] * y[i];    //TODO if sigma is low this becomes inf, is it fixable?
     }
+
 
     for(int i = 0; i < _dim_sizes[0]; ++i){
 

@@ -13,6 +13,8 @@ mnist_loader::mnist_loader(std::string image_file,
 {
     load_images(image_file, num);
     load_labels(label_file, num);
+
+    eng = std::mt19937(seed);
 }
 
 mnist_loader::mnist_loader(std::string image_file,
@@ -92,11 +94,7 @@ void mnist_loader::load_labels(std::string label_file, int num)
 }
 
 std::vector<float> mnist_loader::image_segment() {
-    std::random_device r;
-    std::seed_seq seed{r(), r(), r(), r(), r(), r(), r(), r()};
-    std::mt19937 eng(seed);
 
-    std::uniform_int_distribution<> dist{1,10000};
 
     int image_number = dist(eng) % m_images.size();
     int index =  dist(eng) % 529;
