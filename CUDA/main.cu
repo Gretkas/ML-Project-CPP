@@ -1,5 +1,9 @@
 #include "../src/MNIST/mnist_loader.cpp"
 #include <iostream>
+#include <random>
+#include <typeinfo>
+
+using namespace std;
 
 __global__ void ojas_rule(float *x, float *w, const float y, const float learning_rate) {
     size_t i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -7,12 +11,20 @@ __global__ void ojas_rule(float *x, float *w, const float y, const float learnin
     w[i] = w[i] + learning_rate * y * temp;
 };
 
-__host__ void run_ojas() {
+//Burde denne kjøres på divice eller
+__device__ float y(const float *x, const float *w, int length) {
+    float y = 0;
+    for (int i = 0; i < length; ++i) { //Skal denne starte på 0 eller 1, reff wikipedia
+        y += w[i] * x[i];
+    }
+    return y;
+}
+
+__host__ void run_ojas(const float *w, const float *x) {
 
     const int n = 0; //length of arrays
     const float y = 0;
     const float learning_rate = 0;
-    float *w, *x;
     float *c_w, *c_x;
 
     //Initilaisere verdier mellom 0 og 1
@@ -45,19 +57,49 @@ __host__ void load_data() {
     int rows = train.rows();
     int cols = train.cols();
     int label = train.labels(0);
-    std::vector<float> image = train.images(0);
 
-    std::cout << "label: " << label << std::endl;
+    std::vector<float> im = train.image_segment();
+
+    cout << im.size() << endl;
+
+    std::vector<float> image = train.images(0);
+    cout << image.size() << endl;
+
+    /*
+
+    cout << typeid(im.data()).name() << endl;
+    cout << *(im.data() + 1) - *im.data() << endl;
+
     std::cout << "image: " << std::endl;
     for (int y = 0; y < rows; ++y) {
         for (int x = 0; x < cols; ++x) {
-            std::cout << ((image[y * cols + x] == 0.0) ? ' ' : '*');
+            std::cout << im[y * cols + x] << endl;
         }
         std::cout << std::endl;
     }
+    */
+}
+
+//Husk å free arrayet etter bruk!!
+__host__ float *generate_w(const int len) {
+    float *w;
+    w = new float[len];
+    srand((unsigned)time(0));
+
+    for (int i = 0; i < len; ++i) {
+        w[i] = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX / (1 + 1))) - 1.0;
+    }
+    return w;
 }
 
 int main() {
+    /*
+    int len = 10;
+    float *w = generate_w(len);
+    for (int i = 0; i < len; ++i) {
+        cout << w[i] << endl;
+    }
+    */
 
     load_data();
     //run_ojas();
