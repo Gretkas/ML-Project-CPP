@@ -30,15 +30,9 @@ void Model::ojas_rule_openCL(float* x, int length) {
     cl::Kernel kernel(program, "ojasRule", &exitcode);
     assert(exitcode == CL_SUCCESS);
 
-    int memsize_w = 1;
-
-    for(int _dim_size : _dim_sizes){
-        memsize_w *= _dim_size;
-    }
-
     cl::Buffer buf_W(context,
                      CL_MEM_READ_WRITE| CL_MEM_HOST_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                     sizeof(float) * memsize_w,
+                     sizeof(float) * _dim_sizes[0],
                      (void *)conv_weights);
     cl::Buffer inBuf_X(context,
                        CL_MEM_READ_ONLY | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
@@ -53,9 +47,9 @@ void Model::ojas_rule_openCL(float* x, int length) {
 
 
     cl::CommandQueue queue(context, device);
-    exitcode = queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(memsize_w));
+    exitcode = queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(_dim_sizes[0]));
     //std::cout << exitcode << std::endl;
-    exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)conv_weights);
+    exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * _dim_sizes[0], (void *)conv_weights);
     //std::cout << exitcode << std::endl;
 
 
@@ -67,26 +61,23 @@ Model::Model(float learning_rate, std::vector<int> &dim_sizes) : _learning_rate(
     for(int _dim_size : _dim_sizes){
         memsize *= _dim_size;
     }
-
-    auto* pool_arr = static_cast<float *>(malloc(memsize * sizeof(float *)));
     srand(time(nullptr));
+    pool_weights = static_cast<float *>(malloc(memsize * sizeof(float *)));
     for(int i = 0; i < memsize; ++i){
-        pool_arr[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        pool_weights[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     }
-    auto* conv_arr = static_cast<float *>(malloc(memsize * sizeof(float *)));
-    srand(time(nullptr));
-    for(int i = 0; i < memsize; ++i){
-        conv_arr[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    conv_weights = static_cast<float *>(malloc(_dim_sizes[0] * sizeof(float *)));
+    for(int i = 0; i < _dim_sizes[0]; ++i){
+        conv_weights[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     }
-    pool_weights = pool_arr;
+    initial_pool_weights = static_cast<float *>(malloc(memsize * sizeof(float *)));
     memcpy(initial_pool_weights, pool_weights, sizeof(float)*memsize);
-    conv_weights = conv_arr;
 
 }
 float Model::ojas_y(const float* x, int length) {
     float y = 0;
     for(int i = 0; i < length; ++i){
-        y+= conv_weights[i] * (*(x + i));
+        y+= conv_weights[i] * x[i];
     }
     return y;
 }
@@ -152,6 +143,8 @@ void Model::decorrelated_hebbian_learning_openCL(float *x, int length) {
 
 Model::~Model() {
     free(pool_weights);
+    free(conv_weights);
+    free(initial_pool_weights);
 }
 
 float* Model::dhl_y(const float *x, int length) {
@@ -160,7 +153,10 @@ float* Model::dhl_y(const float *x, int length) {
     auto* y = static_cast<float *>(malloc(length * sizeof(float *)));
 
     for(int i = 0; i< _dim_sizes[0]; ++i){
-        y[i] = exponents[i]/quotient;
+
+        y[i] = exp(exponents[i])/quotient;
+
+
     }
 
     free(exponents);
@@ -226,13 +222,11 @@ float* Model::dhl_y_helper_exponent_vector(const float *x, int length) {
     for(int i = 0; i< _dim_sizes[0]; ++i){
 
         for(int j = 0; j<length; ++j){
-
             exponents[i] += -pow(outvec[i*length+j],2);
 
         }
 
-        exponents[i] = exponents[i]/25; //TODO look for ways which allow lower sigma values
-
+        exponents[i] = exponents[i]/0.5; //TODO look for ways which allow lower sigma values
     }
     free(outvec);
 
@@ -256,9 +250,11 @@ float Model::dhl_y_helper_quotient(float *exponents) {
 //calculates  (y - sum y^2) * learning_rate * y
 float* Model::dhl_y_dot(float *y) {
     float y_dot = 0;
+
     for(int i = 0; i < _dim_sizes[0]; ++i){
         y_dot += y[i] * y[i];    //TODO if sigma is low this becomes inf, is it fixable?
     }
+
 
     for(int i = 0; i < _dim_sizes[0]; ++i){
 
