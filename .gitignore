@@ -1,3 +1,15 @@
 /cmake-build-debug/
 .idea
 /.idea
+CUDA/build/
+CUDA/build
+CUDA/.clang-format
+CUDA/datasets/
+CUDA/datasets
+CUDA/ojas
+/CUDA/build/
+/CUDA/build
+/CUDA/.clang-format
+/CUDA/datasets/
+/CUDA/datasets
+/CUDA/ojas

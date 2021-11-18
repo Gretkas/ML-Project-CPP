@@ -14,7 +14,7 @@ __global__ void ojas_rule(float *x, float *w, const float y, const float learnin
 //Burde denne kjøres på divice eller på
 __device__ float y(const float *x, const float *w, int length) {
     float y = 0;
-    for (int i = 0; i < length; ++i) { //Skal denne starte på 0 eller 1, reff wikipedia
+    for (int i = 0; i < length; ++i) {
         y += w[i] * x[i];
     }
     return y;
