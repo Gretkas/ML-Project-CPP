@@ -12,7 +12,7 @@ __global__ void ojas_rule(float *x, float *w, const float y, const float learnin
 };
 
 //Burde denne kjøres på divice eller på
-__device__ float y(const float *x, const float *w, int length) {
+__host__ float y_ojas(const float *w, const float *x, int length) {
     float y = 0;
     for (int i = 0; i < length; ++i) {
         y += w[i] * x[i];
@@ -20,14 +20,12 @@ __device__ float y(const float *x, const float *w, int length) {
     return y;
 }
 
-__host__ void run_ojas(float *w, const float *x) {
+__host__ void run_ojas(float *w, const float *x, const int len) {
 
-    const int n = 0; //length of arrays
-    const float y = 0;
+    const int n = len; //length of arrays
+    const float y = y_ojas(w, x, len);
     const float learning_rate = 0;
     float *c_w, *c_x;
-
-    //Initilaisere verdier mellom 0 og 1
 
     cudaMalloc(&c_w, sizeof(w)); // er sizeof her riktig?? Ja er vel det
     cudaMalloc(&c_x, sizeof(x));
@@ -35,6 +33,7 @@ __host__ void run_ojas(float *w, const float *x) {
     cudaMemcpy(c_w, w, sizeof(w), cudaMemcpyHostToDevice);
     cudaMemcpy(c_x, x, sizeof(x), cudaMemcpyHostToDevice);
 
+    //Må fikse her. Skal bare ha 25 threads
     int block_size = 256;                          //number of threads per block
     int grid_size = (n + block_size) / block_size; //number of blocks
     ojas_rule<<<grid_size, block_size>>>(c_x, c_w, y, learning_rate);
@@ -66,7 +65,7 @@ __host__ float *generate_w(const int len) {
     srand((unsigned)time(0));
 
     for (int i = 0; i < len; ++i) {
-        w[i] = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX / (1 + 1))) - 1.0;
+        w[i] = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX / (1 + 1))) - 1.0; //initailisere mellom 0 - 1 eller -1 - 1
     }
     return w;
 }
@@ -78,11 +77,7 @@ int main() {
     float *w = generate_w(len);
 
     float *x = load_data();
-
-    for (int i = 0; i < len; ++i) {
-        cout << x[i] << endl;
-    }
-    //run_ojas(w, x);
+    run_ojas(w, x, len);
 
     //Får følgende feil men å ha disse:
     //free(): double free detected in tcache 2
