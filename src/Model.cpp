@@ -39,7 +39,7 @@ void Model::ojas_rule_openCL(float* x, int length) {
     cl::Buffer buf_W(context,
                      CL_MEM_READ_WRITE| CL_MEM_HOST_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                      sizeof(float) * memsize_w,
-                     (void *)_weights);
+                     (void *)conv_weights);
     cl::Buffer inBuf_X(context,
                        CL_MEM_READ_ONLY | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
                        sizeof(float) * length,
@@ -55,7 +55,7 @@ void Model::ojas_rule_openCL(float* x, int length) {
     cl::CommandQueue queue(context, device);
     exitcode = queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(memsize_w));
     //std::cout << exitcode << std::endl;
-    exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)_weights);
+    exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)conv_weights);
     //std::cout << exitcode << std::endl;
 
 
@@ -68,23 +68,25 @@ Model::Model(float learning_rate, std::vector<int> &dim_sizes) : _learning_rate(
         memsize *= _dim_size;
     }
 
-    auto* arr = static_cast<float *>(malloc(memsize * sizeof(float *)));
+    auto* pool_arr = static_cast<float *>(malloc(memsize * sizeof(float *)));
     srand(time(nullptr));
     for(int i = 0; i < memsize; ++i){
-        arr[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        pool_arr[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     }
-    _weights = arr;
+    auto* conv_arr = static_cast<float *>(malloc(memsize * sizeof(float *)));
+    srand(time(nullptr));
+    for(int i = 0; i < memsize; ++i){
+        conv_arr[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    }
+    pool_weights = pool_arr;
+    memcpy(initial_pool_weights, pool_weights, sizeof(float)*memsize);
+    conv_weights = conv_arr;
 
 }
-
-Model::Model(float learning_rate, float* initial_weights, std::vector<int> &dim_sizes) : _learning_rate(learning_rate), _dim_sizes(std::move(dim_sizes))  {
-    _weights = initial_weights;
-}
-
 float Model::ojas_y(const float* x, int length) {
     float y = 0;
     for(int i = 0; i < length; ++i){
-        y+= _weights[i] * (*(x+i));
+        y+= conv_weights[i] * (*(x + i));
     }
     return y;
 }
@@ -97,8 +99,12 @@ const std::vector<int> &Model::getDimSizes() const {
     return _dim_sizes;
 }
 
-float *Model::getWeights() const {
-    return _weights;
+float *Model::getConvWeights() const {
+    return conv_weights;
+}
+
+float *Model::getPoolWeights() const {
+    return pool_weights;
 }
 
 void Model::decorrelated_hebbian_learning_openCL(float *x, int length) {
@@ -119,7 +125,7 @@ void Model::decorrelated_hebbian_learning_openCL(float *x, int length) {
     cl::Buffer buf_W(context,
                      CL_MEM_READ_WRITE| CL_MEM_HOST_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                      sizeof(float) * memsize_w,
-                     (void *)_weights);
+                     (void *)pool_weights);
     cl::Buffer inBuf_X(context,
                        CL_MEM_READ_ONLY | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
                        sizeof(float) * length,
@@ -139,13 +145,13 @@ void Model::decorrelated_hebbian_learning_openCL(float *x, int length) {
 
     cl::CommandQueue queue(context, device);
     exitcode = queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(memsize_w));
-    exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)_weights);
+    exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)pool_weights);
     cl::finish();
     free(y);
 }
 
 Model::~Model() {
-    free(_weights);
+    free(pool_weights);
 }
 
 float* Model::dhl_y(const float *x, int length) {
@@ -188,7 +194,7 @@ float* Model::dhl_y_helper_exponent_vector(const float *x, int length) {
     cl::Buffer buf_W(context,
                      CL_MEM_READ_ONLY| CL_MEM_HOST_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                      sizeof(float) * memsize_w,
-                     (void *)_weights);
+                     (void *)pool_weights);
     cl::Buffer inBuf_X(context,
                        CL_MEM_READ_ONLY | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
                        sizeof(float) * length,
@@ -256,9 +262,27 @@ float* Model::dhl_y_dot(float *y) {
 
     for(int i = 0; i < _dim_sizes[0]; ++i){
 
-        y[i] = y[i]*_learning_rate * (y[i] - y_dot) ;
+        y[i] = y[i]*_learning_rate * (y[i] - y_dot);
 
     }
 
     return y;
+}
+
+//returns indices of best filters
+std::vector<int> Model::find_active(int n){
+    std::vector<int> best;
+    best.reserve(n);
+    std::vector<std::pair<float, int>> dw;
+    for (int i = 0; i < _dim_sizes[0]; ++i) {
+        for (int j = 0; j < _dim_sizes[1]; ++j) {
+            dw.emplace_back(std::pair<float,int>(abs(initial_pool_weights[_dim_sizes[1]*i + j] - pool_weights[_dim_sizes[1]*i + j]), i));
+        }
+    }
+    //this can probably be done in O(n) but O(nlogn) will have to do
+    std::sort(dw.begin(), dw.end(), std::greater<>());
+    for(int i = 0; i < n; ++i) {
+        best.emplace_back(dw[i].second);
+    }
+    return best;
 }

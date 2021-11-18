@@ -20,7 +20,7 @@ __device__ float y(const float *x, const float *w, int length) {
     return y;
 }
 
-__host__ void run_ojas(const float *w, const float *x) {
+__host__ void run_ojas(float *w, const float *x) {
 
     const int n = 0; //length of arrays
     const float y = 0;
@@ -29,7 +29,7 @@ __host__ void run_ojas(const float *w, const float *x) {
 
     //Initilaisere verdier mellom 0 og 1
 
-    cudaMalloc(&c_w, sizeof(w));
+    cudaMalloc(&c_w, sizeof(w)); // er sizeof her riktig?? Ja er vel det
     cudaMalloc(&c_x, sizeof(x));
 
     cudaMemcpy(c_w, w, sizeof(w), cudaMemcpyHostToDevice);
