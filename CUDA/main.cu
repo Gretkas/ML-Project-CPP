@@ -11,7 +11,7 @@ __global__ void ojas_rule(float *x, float *w, const float y, const float learnin
     w[i] = w[i] + learning_rate * y * temp;
 };
 
-//Burde denne kjøres på divice eller
+//Burde denne kjøres på divice eller på
 __device__ float y(const float *x, const float *w, int length) {
     float y = 0;
     for (int i = 0; i < length; ++i) { //Skal denne starte på 0 eller 1, reff wikipedia
@@ -44,11 +44,9 @@ __host__ void run_ojas(const float *w, const float *x) {
 
     cudaFree(c_w);
     cudaFree(c_x);
-    free(w);
-    free(x); //
 }
 
-__host__ void load_data() {
+__host__ float *load_data() {
     mnist_loader train("datasets/train-images.idx3-ubyte",
                        "datasets/train-labels.idx1-ubyte", 100);
     mnist_loader test("datasets/t10k-images.idx3-ubyte",
@@ -78,6 +76,10 @@ __host__ void load_data() {
         std::cout << std::endl;
     }
     */
+
+    float *x;
+    x = im.data();
+    return x;
 }
 
 //Husk å free arrayet etter bruk!!
@@ -92,15 +94,14 @@ __host__ float *generate_w(const int len) {
     return w;
 }
 
+//må free w og x;
 int main() {
-    /*
-    int len = 10;
-    float *w = generate_w(len);
-    for (int i = 0; i < len; ++i) {
-        cout << w[i] << endl;
-    }
-    */
 
-    load_data();
-    //run_ojas();
+    int len = 25; //lengden på diverse arrays
+    float *w = generate_w(len);
+
+    float *x = load_data();
+    //run_ojas(w, x);
+    free(x);
+    free(w);
 }
