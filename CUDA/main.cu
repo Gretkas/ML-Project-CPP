@@ -52,33 +52,10 @@ __host__ float *load_data() {
     mnist_loader test("datasets/t10k-images.idx3-ubyte",
                       "datasets/t10k-labels.idx1-ubyte", 100);
 
-    int rows = train.rows();
-    int cols = train.cols();
-    int label = train.labels(0);
-
-    std::vector<float> im = train.image_segment();
-
-    cout << im.size() << endl;
-
-    std::vector<float> image = train.images(0);
-    cout << image.size() << endl;
-
-    /*
-
-    cout << typeid(im.data()).name() << endl;
-    cout << *(im.data() + 1) - *im.data() << endl;
-
-    std::cout << "image: " << std::endl;
-    for (int y = 0; y < rows; ++y) {
-        for (int x = 0; x < cols; ++x) {
-            std::cout << im[y * cols + x] << endl;
-        }
-        std::cout << std::endl;
-    }
-    */
+    std::vector<float> img_seg = train.image_segment();
 
     float *x;
-    x = im.data();
+    x = img_seg.data();
     return x;
 }
 
@@ -101,7 +78,14 @@ int main() {
     float *w = generate_w(len);
 
     float *x = load_data();
+
+    for (int i = 0; i < len; ++i) {
+        cout << x[i] << endl;
+    }
     //run_ojas(w, x);
-    free(x);
-    free(w);
+
+    //Får følgende feil men å ha disse:
+    //free(): double free detected in tcache 2
+    //delete x;
+    //delete w;
 }
