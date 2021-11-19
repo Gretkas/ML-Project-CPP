@@ -62,16 +62,16 @@ Model::Model(float learning_rate, std::vector<int> &dim_sizes) : _learning_rate(
         memsize *= _dim_size;
     }
     srand(time(nullptr));
-    pool_weights = static_cast<float *>(malloc(memsize * sizeof(float *)));
+    weights = static_cast<float *>(malloc(memsize * sizeof(float *)));
     for(int i = 0; i < memsize; ++i){
-        pool_weights[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        weights[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     }
     conv_weights = static_cast<float *>(malloc(_dim_sizes[0] * sizeof(float *)));
     for(int i = 0; i < _dim_sizes[0]; ++i){
         conv_weights[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     }
     initial_pool_weights = static_cast<float *>(malloc(memsize * sizeof(float *)));
-    memcpy(initial_pool_weights, pool_weights, sizeof(float)*memsize);
+    memcpy(initial_pool_weights, weights, sizeof(float) * memsize);
 
 }
 float Model::ojas_y(const float* x, int length) {
@@ -95,7 +95,7 @@ float *Model::getConvWeights() const {
 }
 
 float *Model::getPoolWeights() const {
-    return pool_weights;
+    return weights;
 }
 
 void Model::decorrelated_hebbian_learning_openCL(float *x, int length) {
@@ -116,7 +116,7 @@ void Model::decorrelated_hebbian_learning_openCL(float *x, int length) {
     cl::Buffer buf_W(context,
                      CL_MEM_READ_WRITE| CL_MEM_HOST_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                      sizeof(float) * memsize_w,
-                     (void *)pool_weights);
+                     (void *)weights);
     cl::Buffer inBuf_X(context,
                        CL_MEM_READ_ONLY | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
                        sizeof(float) * length,
@@ -136,13 +136,13 @@ void Model::decorrelated_hebbian_learning_openCL(float *x, int length) {
 
     cl::CommandQueue queue(context, device);
     exitcode = queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(memsize_w));
-    exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)pool_weights);
+    exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)weights);
     cl::finish();
     free(y);
 }
 
 Model::~Model() {
-    free(pool_weights);
+    free(weights);
     free(conv_weights);
     free(initial_pool_weights);
 }
@@ -190,7 +190,7 @@ float* Model::dhl_y_helper_exponent_vector(const float *x, int length) {
     cl::Buffer buf_W(context,
                      CL_MEM_READ_ONLY| CL_MEM_HOST_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                      sizeof(float) * memsize_w,
-                     (void *)pool_weights);
+                     (void *)weights);
     cl::Buffer inBuf_X(context,
                        CL_MEM_READ_ONLY | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
                        sizeof(float) * length,
@@ -272,7 +272,7 @@ std::vector<int> Model::find_active(int n){
     std::vector<std::pair<float, int>> dw;
     for (int i = 0; i < _dim_sizes[0]; ++i) {
         for (int j = 0; j < _dim_sizes[1]; ++j) {
-            dw.emplace_back(std::pair<float,int>(abs(initial_pool_weights[_dim_sizes[1]*i + j] - pool_weights[_dim_sizes[1]*i + j]), i));
+            dw.emplace_back(std::pair<float,int>(abs(initial_pool_weights[_dim_sizes[1]*i + j] - weights[_dim_sizes[1] * i + j]), i));
         }
     }
     //this can probably be done in O(n) but O(nlogn) will have to do
@@ -281,4 +281,72 @@ std::vector<int> Model::find_active(int n){
         best.emplace_back(dw[i].second);
     }
     return best;
+}
+
+void Model::dhl_full_gpu(float *x, int len, int num_segments) {
+
+    int exitcode;
+    cl::Program program = createProgram("Kernels.cl");
+    cl::Context context = program.getInfo<CL_PROGRAM_CONTEXT>();
+    auto devices = program.getInfo<CL_PROGRAM_DEVICES>();
+    auto device = devices.front();
+    int memsize_w = 1;
+    for(int _dim_size : _dim_sizes){
+        memsize_w *= _dim_size;
+    }
+    auto y = static_cast<float *>(malloc(_dim_sizes[0] * sizeof(float *)));
+    for (int i = 0; i < _dim_sizes[0]; ++i) {
+        y[i] = 0;
+    }
+    auto y_dot = static_cast<float *>(malloc(1 * sizeof(float *)));
+    y_dot[0] = 0;
+    //initialize all buffers
+    cl::Buffer buf_W(context,
+                     CL_MEM_READ_WRITE| CL_MEM_HOST_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                     sizeof(float) * memsize_w,
+                     (void *)weights);
+    cl::Buffer Buf_X(context,
+                       CL_MEM_READ_ONLY | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
+                       sizeof(float) * len * num_segments,
+                       (void *)x);
+    cl::Buffer Buf_Y(context,
+                     CL_MEM_READ_WRITE | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
+                     sizeof(float) * _dim_sizes[0],
+                     (void *)y);
+    cl::Buffer Buf_Y_dot(context,
+                     CL_MEM_READ_WRITE | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR,
+                     sizeof(float) * 1,
+                     (void *)y_dot);
+
+
+    //initialize all kernels
+    cl::Kernel kernel_exponent_vector(program, "dhl_y_helper_calc_exponent_vector", &exitcode);
+    //std::cout<< exitcode << std::endl;
+    assert(exitcode == CL_SUCCESS);
+    kernel_exponent_vector.setArg(0, Buf_X);
+    kernel_exponent_vector.setArg(1, buf_W);
+    kernel_exponent_vector.setArg(2, Buf_Y);
+    kernel_exponent_vector.setArg(3, len);
+
+    cl::Kernel kernel_exp_exponent(program,"dhl_y", &exitcode);
+    kernel_exp_exponent.setArg(0, Buf_Y);
+    kernel_exp_exponent.setArg(1, Buf_Y_dot);
+
+
+    //command queue for all kernels
+    cl::CommandQueue queue(context, device);
+
+    //iterate over all image segments in batch
+    for (int i = 0; i < num_segments; ++i) {
+        exitcode = queue.enqueueNDRangeKernel(kernel_exponent_vector, cl::NDRange(len*i), cl::NDRange(memsize_w), cl::NDRange(len));
+        assert(exitcode == CL_SUCCESS);
+        cl::finish();
+
+        
+        //remember to reset y_dot here if needed
+        exitcode = queue.enqueueNDRangeKernel(kernel_exp_exponent, cl::NullRange, cl::NDRange(_dim_sizes[0]));
+        assert(exitcode == CL_SUCCESS);
+        cl::finish();
+
+    }
 }

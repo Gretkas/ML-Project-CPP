@@ -16,7 +16,7 @@ public:
     const float _learning_rate;
     const std::vector<int> _dim_sizes;
     float* conv_weights;
-    float* pool_weights;
+    float* weights;
     float* initial_pool_weights;
     float ojas_y(const float* x, int length);
     void ojas_rule_openCL(float* x, int length);
@@ -29,7 +29,7 @@ public:
     [[nodiscard]] float *getConvWeights() const;
 
     [[nodiscard]] float *getPoolWeights() const;
-
+    void dhl_full_gpu(float* x, int len, int num_segments);
 
 private:
 

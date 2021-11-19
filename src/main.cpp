@@ -87,23 +87,28 @@ int main() {
     mnist_loader test("dataset/t10k-images-idx3-ubyte",
                       "dataset/t10k-labels-idx1-ubyte", 10000);
     //std::vector<float> image = train.images(0);
-
-    //std::array<std::array<float, 3>,3> x = {{{0.5,0.5,0.5}, {0.5,0.5,0.5}, {0.5,0.5,0.5}}};
-    std::vector<int> dim = {25, 25};
+    auto x = static_cast<float *>(malloc(18 * sizeof(float *)));
+    for (int i = 0; i < 18; ++i) {
+       x[i] = 0.5;
+    }
+    std::vector<int> dim = {9, 9};
     //use numbers between 0 and 1 or bad things happen
     Model model(0.01, dim);
     //printweights( model);
 
-    for(int i = 0; i<10000; ++i){
+    model.dhl_full_gpu(x, 9, 1);
+
+    /*for (int i = 0; i < 10000; ++i) {
+
         //model.ojas_rule_openCL(train.image_segment().data(), 25);
         model.decorrelated_hebbian_learning_openCL(train.image_segment().data(), 25);
-        if(i%100 == 0){
+        if (i % 100 == 0) {
 
             printweights(model);
 
         }
 
-    }
+    }*/
 
 
     // x_vec -> DHL w = n vec

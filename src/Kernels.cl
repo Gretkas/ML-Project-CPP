@@ -1,55 +1,28 @@
-void kernel squareArray(global int* input, global int* output) {
-   size_t gid = get_global_id(0);
-   output[gid] = input[gid] * input[gid];
-};
-
 void kernel ojasRule(global float* x, global float* w, const float y, const float learning_rate) {
     size_t i = get_global_id(0);
     float temp = x[i]- y*w[i];
     w[i] = w[i] + learning_rate*y*temp;
 };
 
-void kernel dhl_y_helper_sum_exponent_vector(global float* exponents, local float* localReduction, global float* out){
-    size_t gid = get_global_id(0);
-    size_t lid = get_local_id(0);
-    size_t l_size = get_local_size(0);
-    localReduction[lid] = exponents[gid];
-    barrier(CLK_LOCAL_MEM_FENCE);
-    for(int i = l_size >> 1; i>0; i>>=1){
-            if(lid < i){
-                localReduction[lid] += localReduction[lid+i];
-            }
-            barrier(CLK_LOCAL_MEM_FENCE);
-        }
-
-    if(lid == 0){
-        out[get_group_id(0)] = localReduction[0];
-    }
-}
-
-void kernel dhl_y_helper_calc_quotient(global float* exponents, local float* localReduction, global float* out){
-    size_t gid = get_global_id(0);
-    size_t lid = get_local_id(0);
-    size_t l_size = get_local_size(0);
-    localReduction[lid] = exponents[gid];
-    barrier(CLK_LOCAL_MEM_FENCE);
-    for(int i = l_size >> 1; i>0; i>>=1){
-            if(lid < i){
-                localReduction[lid] = exp(localReduction[lid]) + exp(localReduction[lid+i]);
-            }
-            barrier(CLK_LOCAL_MEM_FENCE);
-        }
-
-    if(lid == 0){
-        out[get_group_id(0)] = localReduction[0];
-    }
-}
-
 void kernel dhl_y_helper_calc_exponent_vector(global float* x, global float* w, global float* out, const int len){
-    size_t gid = get_global_id(0);
-    out[gid] = x[gid%len] - w[gid];
-
+        size_t gid = get_global_id(0);
+        size_t lid = get_local_id(0);
+        size_t offset = get_global_offset(0);
+        out[gid%len] -= pow(x[offset + lid] - w[gid],2);
 }
+
+void kernel dhl_y(global float* exponents, global float* y_dot){
+        size_t gid = get_global_id(0);
+        float temp = exponents[gid]/0.5;
+        exponents[gid] = exp(temp);
+        y_dot[0] += exponents[gid];
+        barrier(CLK_GLOBAL_MEM_FENCE);
+        //calculate all y values
+        exponents[gid] = exponents[gid] / y_dot[0];
+
+};
+
+
 void kernel decorrelatedHebbianLearning(
     global float* x,
     global float* w,
