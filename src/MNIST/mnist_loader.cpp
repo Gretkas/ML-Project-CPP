@@ -61,7 +61,7 @@ void mnist_loader::load_images(std::string image_file, int num)
         ifs.read(q, m_rows * m_cols);
         std::vector<float> image(m_rows * m_cols);
         for (int j=0; j<m_rows * m_cols; ++j) {
-            image[j] = q[j] / 255.0;
+            image[j] =  ((unsigned char)q[j]) / 255.0;
         }
         m_images.push_back(image);
     }
@@ -94,19 +94,28 @@ void mnist_loader::load_labels(std::string label_file, int num)
 }
 
 std::vector<float> mnist_loader::image_segment() {
-
-
+    std::vector<float> out;
+    bool nonzero = false;
+    while(!nonzero){
     int image_number = dist(eng) % m_images.size();
     int index =  dist(eng) % 529;
 
 
-    std::vector<float> out;
+
     auto image = images(image_number);
-    for(int i = 0; i<5; ++i){
-        for(int j = 0; j<5; ++j){
-            out.emplace_back(image[(index+(i*28) + j)]);
+
+        for(int i = 0; i<5; ++i){
+            for(int j = 0; j<5; ++j){
+                if(image[(index+(i*28) + j)] != 0.0){
+                    nonzero = true;
+                }
+                out.emplace_back(image[(index+(i*28) + j)]);
+            }
         }
     }
+
+
+
     return out;
 
 }

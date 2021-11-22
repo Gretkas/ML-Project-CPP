@@ -86,32 +86,43 @@ int main() {
                        "dataset/train-labels-idx1-ubyte", 10000);
     mnist_loader test("dataset/t10k-images-idx3-ubyte",
                       "dataset/t10k-labels-idx1-ubyte", 10000);
-    //std::vector<float> image = train.images(0);
-    auto x = static_cast<float *>(malloc(18 * sizeof(float *)));
-    for (int i = 0; i < 18; ++i) {
-       x[i] = 0.5;
-    }
-    std::vector<int> dim = {9, 9};
+
+    std::vector<int> dim = {2, 2};
     //use numbers between 0 and 1 or bad things happen
-    Model model(0.01, dim);
-    //printweights( model);
+    Model model(0.1, dim);
 
-    model.dhl_full_gpu(x, 9, 1);
 
-    /*for (int i = 0; i < 10000; ++i) {
-
-        //model.ojas_rule_openCL(train.image_segment().data(), 25);
-        model.decorrelated_hebbian_learning_openCL(train.image_segment().data(), 25);
-        if (i % 100 == 0) {
-
-            printweights(model);
-
+    int num_segments = 1000;
+    std::vector<float> segments;
+    for (int i = 0; i < num_segments; ++i) {
+        auto segment = train.image_segment();
+        segments.insert(segments.end(), segment.begin(), segment.end());
+    }
+    /*for (int i = 0; i < 10; ++i) {
+        for (int j = 0; j < 25; ++j) {
+            segments.emplace_back(-0.6);
         }
 
     }*/
+    printweights(model);
+    for (int i = 0; i < 100; ++i) {
+        model.dhl_full_gpu(segments.data() + (25*100*i), 25, 100, 2);
+        printweights(model);
+
+    }
+
+    /*for(int i = 0; i<10000; ++i){
+        //model.ojas_rule_openCL(train.image_segment().data(), 25);
+        model.decorrelated_hebbian_learning_CPU(train.image_segment().data(), 25);
+        if(i%100 == 0){
+            printweights(model);
+        }
+    }*/
+    model.dhl_full_gpu(segments.data(), 2, 1, 2);
+    printweights(model);
 
 
-    // x_vec -> DHL w = n vec
+
 
     return 0;
 }

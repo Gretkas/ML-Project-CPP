@@ -20,7 +20,7 @@ public:
     float* initial_pool_weights;
     float ojas_y(const float* x, int length);
     void ojas_rule_openCL(float* x, int length);
-    void decorrelated_hebbian_learning_openCL(float* x, int length);
+    void decorrelated_hebbian_learning_CPU(float* x, int length);
     std::vector<int> find_active(int n);
     [[nodiscard]] const float getLearningRate() const;
 
@@ -29,7 +29,7 @@ public:
     [[nodiscard]] float *getConvWeights() const;
 
     [[nodiscard]] float *getPoolWeights() const;
-    void dhl_full_gpu(float* x, int len, int num_segments);
+    void dhl_full_gpu(float* x, int len, int num_segments, float sigma);
 
 private:
 
