@@ -87,7 +87,7 @@ int main() {
     mnist_loader test("dataset/t10k-images-idx3-ubyte",
                       "dataset/t10k-labels-idx1-ubyte", 10000);
 
-    std::vector<int> dim = {2, 2};
+    std::vector<int> dim = {25, 25};
     //use numbers between 0 and 1 or bad things happen
     Model model(0.1, dim);
 
@@ -98,12 +98,6 @@ int main() {
         auto segment = train.image_segment();
         segments.insert(segments.end(), segment.begin(), segment.end());
     }
-    /*for (int i = 0; i < 10; ++i) {
-        for (int j = 0; j < 25; ++j) {
-            segments.emplace_back(-0.6);
-        }
-
-    }*/
     printweights(model);
     for (int i = 0; i < 100; ++i) {
         model.dhl_full_gpu(segments.data() + (25*100*i), 25, 100, 2);

@@ -3,7 +3,7 @@ project(ML_project_cpp)
 
 
 
-
+#Everything below is taken from: https://github.com/JanosGit/CrossPlatformOpenCLCMakeLists
 
 # MIT License
 # Copyright (c) 2019 Janos Buttgereit

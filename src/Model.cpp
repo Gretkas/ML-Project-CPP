@@ -48,9 +48,9 @@ void Model::ojas_rule_openCL(float* x, int length) {
 
     cl::CommandQueue queue(context, device);
     exitcode = queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(_dim_sizes[0]));
-    //std::cout << exitcode << std::endl;
+
     exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * _dim_sizes[0], (void *)conv_weights);
-    //std::cout << exitcode << std::endl;
+
 
 
     cl::finish();
@@ -64,7 +64,6 @@ Model::Model(float learning_rate, std::vector<int> &dim_sizes) : _learning_rate(
     srand(time(nullptr));
     weights = static_cast<float *>(malloc(memsize * sizeof(float *)));
     for(int i = 0; i < memsize; ++i){
-        //weights[i] = 0.1*i;
         weights[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     }
     conv_weights = static_cast<float *>(malloc(_dim_sizes[0] * sizeof(float *)));
@@ -213,11 +212,12 @@ std::vector<int> Model::find_active(int n){
     return best;
 }
 
+
+//found here: https://stackoverflow.com/a/2681094
 int previous_power_of_two( int x ) {
     if (x == 0) {
         return 0;
     }
-    // x--; Uncomment this, if you want a strictly less than 'x' result.
     x |= (x >> 1);
     x |= (x >> 2);
     x |= (x >> 4);
@@ -285,7 +285,6 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
 
     //initialize all kernels
     cl::Kernel kernel_exponent_vector(program, "dhl_y_helper_calc_exponent_vector", &exitcode);
-    //std::cout<< exitcode << std::endl;
     assert(exitcode == CL_SUCCESS);
     kernel_exponent_vector.setArg(0, Buf_X);
     kernel_exponent_vector.setArg(1, buf_W);
@@ -298,7 +297,6 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
 
 
     cl::Kernel kernel_sum_helper(program, "sum_helper", &exitcode);
-    //std::cout<< exitcode << std::endl;
     assert(exitcode == CL_SUCCESS);
     kernel_sum_helper.setArg(0, Buf_vector_sub);
     kernel_sum_helper.setArg(1, offset_1);
@@ -309,7 +307,6 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
 
 
     cl::Kernel kernel_sum_exponent(program, "sum_reduction", &exitcode);
-    //std::cout<< exitcode << std::endl;
     assert(exitcode == CL_SUCCESS);
 
     if(surplus_1 != 0){
@@ -322,7 +319,6 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
     kernel_sum_exponent.setArg(2, Buf_Y);
 
     cl::Kernel kernel_y_helper_fraction(program, "dhl_y_helper_fraction", &exitcode);
-    //std::cout<< exitcode << std::endl;
     assert(exitcode == CL_SUCCESS);
     kernel_y_helper_fraction.setArg(0, Buf_Y);
     kernel_y_helper_fraction.setArg(1, sigma);
@@ -334,7 +330,6 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
     const int wg_size_2 = offset_2;
 
     cl::Kernel kernel_sum_helper_with_output_divisor(program, "sum_helper_with_output", &exitcode);
-    //std::cout<< exitcode << std::endl;
     assert(exitcode == CL_SUCCESS);
     kernel_sum_helper_with_output_divisor.setArg(0, Buf_Y);
     kernel_sum_helper_with_output_divisor.setArg(1, Buf_temp_sum);
@@ -344,7 +339,6 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
 
 
     cl::Kernel kernel_sum_divisor(program, "sum_reduction", &exitcode);
-    //std::cout<< exitcode << std::endl;
     assert(exitcode == CL_SUCCESS);
     if(surplus_2 != 0){
         kernel_sum_divisor.setArg(0, Buf_temp_sum);
@@ -361,7 +355,6 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
 
 
     cl::Kernel kernel_sum_helper_with_output_y_sum(program, "sum_helper_with_power_and_output", &exitcode);
-    //std::cout<< exitcode << std::endl;
     assert(exitcode == CL_SUCCESS);
     kernel_sum_helper_with_output_y_sum.setArg(0, Buf_Y);
     kernel_sum_helper_with_output_y_sum.setArg(1, Buf_temp_sum);
@@ -377,7 +370,6 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
 
 
     cl::Kernel kernel_sum_y(program, "sum_reduction", &exitcode);
-    //std::cout<< exitcode << std::endl;
     assert(exitcode == CL_SUCCESS);
 
     kernel_sum_y.setArg(0, Buf_temp_sum);
@@ -403,12 +395,11 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
 
     //iterate over all image segments in batch
     for (int i = 0; i < num_segments; ++i) {
-        //std::cout << "------" << std::endl;
+
         exitcode = queue.enqueueNDRangeKernel(kernel_exponent_vector, cl::NDRange(len*i), cl::NDRange(memsize_w), cl::NDRange(len));
-        std::cout << exitcode << std::endl;
         assert(exitcode == CL_SUCCESS);
         queue.finish();
-        //std::cout << "------" << std::endl;
+
 
         if(surplus_1 != 0){
             exitcode = queue.enqueueNDRangeKernel(kernel_sum_helper, cl::NullRange, cl::NDRange(previous_power_of_two(memsize_w)), cl::NDRange(
@@ -416,27 +407,27 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
             assert(exitcode == CL_SUCCESS);
             queue.finish();
         }
-        //std::cout << "------" << std::endl;
+
 
         //TODO this only works for small vectors, fix later if time
         exitcode = queue.enqueueNDRangeKernel(kernel_sum_exponent, cl::NullRange, cl::NDRange(previous_power_of_two(len)*_dim_sizes[0]), cl::NDRange(wg_size_1));
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
-        //std::cout << "------" << std::endl;
+
 
         exitcode = queue.enqueueNDRangeKernel(kernel_y_helper_fraction, cl::NullRange, cl::NDRange(_dim_sizes[0]));
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
-        //std::cout << "------" << std::endl;
+
 
         if(surplus_2 != 0){
             exitcode = queue.enqueueNDRangeKernel(kernel_sum_helper_with_output_divisor, cl::NullRange, cl::NDRange(previous_power_of_two(_dim_sizes[0])));
             assert(exitcode == CL_SUCCESS);
             queue.finish();
         }
-        //std::cout << "------" << std::endl;
+
 
 
         //TODO this only works for small vectors, fix later if time
@@ -444,13 +435,13 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
-        //std::cout << "------" << std::endl;
+
 
         exitcode = queue.enqueueNDRangeKernel(kernel_y, cl::NullRange, cl::NDRange(_dim_sizes[0]));
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
-        //std::cout << "------" << std::endl;
+
 
 
         exitcode = queue.enqueueNDRangeKernel(kernel_sum_helper_with_output_y_sum, cl::NullRange, cl::NDRange(previous_power_of_two(_dim_sizes[0])));
@@ -458,20 +449,20 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
         queue.finish();
 
 
-        //std::cout << "------" << std::endl;
+
 
         //TODO this only works for small vectors, fix later if time
         exitcode = queue.enqueueNDRangeKernel(kernel_sum_y, cl::NullRange, cl::NDRange(previous_power_of_two(_dim_sizes[0])), cl::NDRange(wg_size_2));
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
-        //std::cout << "------" << std::endl;
+
 
         exitcode = queue.enqueueNDRangeKernel(kernel_dhl, cl::NDRange(len*i), cl::NDRange(memsize_w), cl::NDRange(len));
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
-        //std::cout << "------" << std::endl;
+
 
         exitcode = queue.enqueueNDRangeKernel(kernel_reset_y, cl::NullRange, cl::NDRange(_dim_sizes[0]));
         assert(exitcode == CL_SUCCESS);
