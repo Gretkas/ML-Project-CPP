@@ -92,7 +92,7 @@ int main() {
     Model model(0.1, dim);
 
 
-    int num_segments = 1000;
+    int num_segments = 10000;
     std::vector<float> segments;
     for (int i = 0; i < num_segments; ++i) {
         auto segment = train.image_segment();
@@ -111,14 +111,12 @@ int main() {
 
     }
 
-    /*for(int i = 0; i<10000; ++i){
-        //model.ojas_rule_openCL(train.image_segment().data(), 25);
+    for(int i = 0; i<10000; ++i){
         model.decorrelated_hebbian_learning_CPU(train.image_segment().data(), 25);
         if(i%100 == 0){
             printweights(model);
         }
-    }*/
-    model.dhl_full_gpu(segments.data(), 2, 1, 2);
+    }
     printweights(model);
 
 

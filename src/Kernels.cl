@@ -103,7 +103,7 @@ void kernel decorrelatedHebbianLearning(global float* x, global float* w, global
     //printf("gid : %u,  %f, %f\n",gid, y[i], y_sum[0]);
     w[gid] = w[gid] + (learn_rate * y[i] * (x[offset + lid] - w[gid]) * (y[i] - y_sum[0]));
 
-    printf("gid : %u,  %f, %u\n",gid, w[gid], 42);
+    //printf("gid : %u,  %f, %u\n",gid, w[gid], 42);
 
 };
 /*
