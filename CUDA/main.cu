@@ -7,91 +7,103 @@
 
 using namespace std;
 
-__global__ void ojas_rule(float *x, float *w, const float y, const float learning_rate) {
+__global__ void w_ojas(float *x, float *w, const float y, const float learning_rate) {
     size_t i = blockIdx.x * blockDim.x + threadIdx.x;
     float temp = x[i] - y * w[i];
     w[i] = w[i] + learning_rate * y * temp;
 };
 
-//Burde denne kjøres på divice eller på
-__host__ float y_ojas(const float *w, const float *x, int length) {
+__device__ float y_ojas(const float *w, const float *x) {
+    const int length = 25;
     float y = 0;
-    cout << "x - y_ojas:" << endl;
     for (int i = 0; i < length; ++i) {
-        cout << x[i];
         y += w[i] * x[i];
     }
-    cout << endl
-         << endl;
     return y;
 }
 
-__host__ void run_ojas(float *w, vector<float> x, const int len) {
+__global__ void ojas_rule(float *x, float *w, const float learning_rate, const int num, const int seg_len) {
+    float y;
 
-    const float y = y_ojas(w, x.data(), len);
-    cout << "y: " << y << endl;
-    const float learning_rate = 0.1;
-    float *c_w, *c_x;
+    printf("test\n");
 
-    cout << "x - run ojas:" << endl;
-    for (int i = 0; i < len; i++) {
-        cout << x[i];
+    for (int i = 0; i < num; ++i) {
+        //printf("const char *, ...");
+        //printf("%f", x[i]);
+        //Må sende inn riktig deler av x
+        //y = y_ojas(w, x);
+        //w_ojas<<<1, 25>>>(x, w, y, learning_rate);
+        //cudaDeviceSynchronize();
     }
-    cout << endl
-         << endl;
-
-    cudaMalloc(&c_w, sizeof(w)); // er sizeof her riktig?? Ja er vel det
-    cudaMalloc(&c_x, sizeof(x));
-
-    cudaMemcpy(c_w, w, sizeof(w), cudaMemcpyHostToDevice);
-    cudaMemcpy(c_x, x.data(), sizeof(x), cudaMemcpyHostToDevice);
-
-    //Må fikse her. Skal bare ha 25 threads
-    /*
-    int block_size = 256;                          //number of threads per block
-    int grid_size = (n + block_size) / block_size; //number of blocks
-    */
-
-    ojas_rule<<<1, 25>>>(c_x, c_w, y, learning_rate);
-
-    cudaDeviceSynchronize();
-    cudaMemcpy(w, c_w, sizeof(w), cudaMemcpyDeviceToHost);
-
-    cout << "W(i+1:)" << endl;
-    for (int i = 0; i < len; ++i) {
-        cout << w[i] << ", ";
-    }
-    cout << endl;
-
-    cudaFree(c_w);
-    cudaFree(c_x);
 }
 
-__host__ vector<float> load_data() {
+__host__ void run_ojas(float *w, vector<vector<float>> vec_x, const int num, const int seg_len) {
+
+    float x[num][seg_len];
+    /*for (int i = 0; i < num; ++i) {
+        for (int j = 0; j < seg_len; ++j) {
+            x[i][j] = (*vec_x.data())[j];
+            printf("%f", (*vec_x.data())[j]);
+        };
+    }*/
+    cout << endl;
+    cout << endl;
+    int a = 0;
+    int b = 0;
+    for (auto i : vec_x) {
+        for (auto j : i) {
+            x[a][b] = j;
+            b++;
+        }
+        a++;
+    }
+
+    cout << endl;
+    cout << endl;
+    cout << endl;
+
+    for (int i = 0; i < num; ++i) {
+        for (int j = 0; j < seg_len; ++j) {
+            printf("%f", x[i][j]);
+        };
+    }
+
+    cout << endl;
+    cout << endl;
+
+    const float learning_rate = 0.1;
+    float *d_w, *d_x;
+
+    cudaMalloc(&d_w, sizeof(w));
+    cudaMalloc(&d_x, sizeof(x));
+
+    cudaMemcpy(d_w, w, sizeof(w), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_x, x, sizeof(x), cudaMemcpyHostToDevice);
+
+    ojas_rule<<<1, 1>>>(d_x, d_w, learning_rate, num, seg_len);
+
+    cudaDeviceSynchronize();
+    cudaMemcpy(w, d_w, sizeof(w), cudaMemcpyDeviceToHost);
+
+    cudaFree(d_w);
+    cudaFree(d_x);
+}
+
+__host__ vector<vector<float>> load_data(const int num) {
     mnist_loader train("datasets/train-images.idx3-ubyte",
                        "datasets/train-labels.idx1-ubyte", 100);
     mnist_loader test("datasets/t10k-images.idx3-ubyte",
                       "datasets/t10k-labels.idx1-ubyte", 100);
 
-    std::vector<float> img_seg = train.image_segment();
-    cout << "x - img_seg:" << endl;
-    for (auto i : img_seg) {
-        cout << i;
+    vector<vector<float>> segments;
+
+    for (int i = 0; i < num; ++i) {
+        segments.emplace_back(train.image_segment());
     }
-    cout << endl
-         << endl;
-    /*
-    float x = [img_seg.size()];
-    //x = img_seg.data();
-    //cout << "x - arr func:" << endl;
-    for (size_t i = 0; i < img_seg.size(); ++i) {
-        x[i] = img_seg.data()[i];
-    }
-    */
-    return img_seg;
+
+    return segments;
 }
 
-//Husk å free arrayet etter bruk!!
 __host__ float *generate_w(const int len) {
     float *w;
     w = new float[len];
@@ -106,22 +118,25 @@ __host__ float *generate_w(const int len) {
 //må free w og x;
 int main() {
 
-    int len = 25; //lengden på diverse arrays
-    float *w = generate_w(len);
-    for (int i = 0; i < len; ++i) {
-        cout << w[i] << ", ";
+    const int num_seg = 10;     //ant segmenter
+    const int len = 25;         //lengden på et segment
+    float *w = generate_w(len); // skal bare være 25 lang
+
+    cout << "w(0):" << endl;
+    for (int j = 0; j < len; ++j) {
+        cout << w[j] << ", ";
     }
     cout << endl;
 
-    vector<float> x = load_data();
-    //er rar her?
-    cout << "x - main:" << endl;
-    for (size_t i = 0; i < len; i++) {
-        cout << x[i];
+    vector<vector<float>> x = load_data(num_seg);
+
+    run_ojas(w, x, num_seg, len);
+
+    cout << "W(1):" << endl;
+    for (int i = 0; i < 25; ++i) {
+        cout << w[i] << ", ";
     }
-    cout << endl
-         << endl;
-    run_ojas(w, x, len);
+    cout << endl;
 
     //Får følgende feil men å ha disse:
     //free(): double free detected in tcache 2
