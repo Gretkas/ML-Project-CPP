@@ -11,7 +11,20 @@ T random(T range_from, T range_to) {
     return distr(generator);
 }
 
-std::vector<float> load_data(const int num, const bool return_segment = true, const int img_quantity = 100) {
+//for å printe ut arrays
+std::ostream &operator<<(std::ostream &out, float *array) {
+    const int len = 25; // må forandres etter hva x er
+
+    for (int i = 0; i < len; i++) {
+        out << array[i] << ", ";
+    }
+    return out;
+}
+
+std::vector<float> load_data(const int num, const bool return_segment = true, int img_quantity = 100) {
+    if (!return_segment && num > img_quantity)
+        img_quantity = num;
+
     mnist_loader train("datasets/train-images.idx3-ubyte",
                        "datasets/train-labels.idx1-ubyte", img_quantity);
     mnist_loader test("datasets/t10k-images.idx3-ubyte",
