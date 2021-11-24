@@ -1,7 +1,8 @@
-#include "../src/MNIST/mnist_loader.cpp"
+#include "helper.cu"
 #include <iostream>
 #include <random>
 #include <typeinfo>
+#include <vector>
 
 /// vente med oppdatering og teste hva forkjellen blir, kan lage to forskjellige metoder og sende inn samme datasett
 
@@ -28,7 +29,7 @@ __global__ void ojas_rule(float *x, float *w, const float learning_rate, const i
         float *x_start = &(x[i * len]); //Må sende inn riktig deler av x
         y = y_ojas(w, x_start, len);
 
-        w_ojas<<<1, 25>>>(x_start, w, y, learning_rate);
+        w_ojas<<<1, len>>>(x_start, w, y, learning_rate);
         cudaDeviceSynchronize();
     }
 }
@@ -56,33 +57,6 @@ __host__ void run_ojas(float *w, vector<float> vec_x, const int num, const int l
     cudaFree(d_x);
 }
 
-__host__ vector<float> load_data(const int num) {
-    mnist_loader train("datasets/train-images.idx3-ubyte",
-                       "datasets/train-labels.idx1-ubyte", 100);
-    mnist_loader test("datasets/t10k-images.idx3-ubyte",
-                      "datasets/t10k-labels.idx1-ubyte", 100);
-
-    vector<float> segments;
-
-    for (int i = 0; i < num; ++i) {
-        vector<float> segment = train.image_segment();
-        segments.insert(segments.end(), segment.begin(), segment.end());
-    }
-
-    return segments;
-}
-
-__host__ float *generate_w(const int len) {
-    float *w;
-    w = new float[len];
-    srand((unsigned)time(0));
-
-    for (int i = 0; i < len; ++i) {
-        w[i] = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX / (1 + 1)) - 1.0); //initailisere mellom 0 - 1 eller -1 - 1
-    }
-    return w;
-}
-
 //må free w og x;
 int main() {
 
@@ -94,12 +68,11 @@ int main() {
     for (int j = 0; j < len; ++j) {
         cout << w[j] << ", ";
     }
-
+    cout << endl;
     vector<float> x = load_data(num_seg);
 
     run_ojas(w, x, num_seg, len);
 
-    cout << endl;
     cout << endl;
     cout << "w(" << num_seg << "):" << endl;
     for (int i = 0; i < 25; ++i) {
