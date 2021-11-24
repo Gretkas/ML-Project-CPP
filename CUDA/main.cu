@@ -7,10 +7,10 @@
 
 //må free w og x;
 int main() {
-
-    const int num_seg = 10000;  //ant segmenter
-    const int len = 25;         //lengden på et segment
-    float *w = generate_w(len); // skal bare være 25 lang
+    const int num_neurons = 10000;            //ant nevroner som trenes
+    const int num_seg = 100;                  //ant segmenter/bilder
+    const int len = 25;                       //lengden på et segment/bilde
+    float *w = generate_w(len * num_neurons); // skal bare være 25 lang * ant nevroner
 
     std::cout << "w(0):" << std::endl;
     std::cout << w << std::endl
@@ -18,7 +18,7 @@ int main() {
 
     std::vector<float> x = load_data(num_seg);
 
-    run_ojas(w, x, num_seg, len, true);
+    run_ojas(w, x, num_seg, len, num_neurons, false);
 
     std::cout << "w(" << num_seg << "):" << std::endl;
     std::cout << w << std::endl;
