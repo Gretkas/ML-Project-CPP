@@ -1,3 +1,4 @@
+#include <cuda_profiler_api.h>
 #include <vector>
 
 __global__ void w_ojas(float *x, float *w, const float y, const float learning_rate) {
@@ -83,11 +84,13 @@ __host__ void run_ojas(float *w, std::vector<float> vec_x, const int num, const 
         num_treads = 1024;
         num_blocks = (num_neurons + num_treads) / num_treads;
     }
+    cudaProfilerStart();
     if (par_y) {
         ojas_rule<<<num_blocks, num_treads>>>(d_x, d_w, learning_rate, num, len, num_neurons);
     } else {
         ojas_rule_par<<<num_blocks, num_treads>>>(d_x, d_w, learning_rate, num, len, num_neurons);
     }
+    cudaProfilerStop();
 
     cudaDeviceSynchronize();
     cudaMemcpy(w, d_w, w_size, cudaMemcpyDeviceToHost);
