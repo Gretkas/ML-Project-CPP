@@ -54,7 +54,7 @@ float *generate_w(const int len) {
     srand((unsigned)time(0));
 
     for (int i = 0; i < len; ++i) {
-        w[i] = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX / (1 + 1)) - 1.0); //initailisere mellom 0 - 1 eller -1 - 1
+        w[i] = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX / (1 + 1)) - 1.0); //initailiserer mellom  -1 - 1
     }
     return w;
 }

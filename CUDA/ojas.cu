@@ -81,7 +81,7 @@ __host__ void run_ojas(float *w, std::vector<float> vec_x, const int num, const 
     cudaMemcpy(d_w, w, w_size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_x, x, x_size, cudaMemcpyHostToDevice);
 
-    int num_treads = 1024;
+    int num_treads = num_neurons;
     int num_blocks = 1;
 
     if (num_neurons > 1024) {
