@@ -13,7 +13,7 @@ cd build
 cmake ..
 make
 ```
-after this is done move your MNIST files into a folder call dataset, and move the datasets folder into the build directory.
+after this is done move your MNIST files into a folder call dataset, and move the dataset folder into the build directory.
 
 ## Dependencies
 
