@@ -6,7 +6,7 @@
 #ifdef __APPLE__ //Mac OSX has a different name for the header file
 #include <OpenCL/opencl.hpp>
 #else
-#include <CL/cl.h>
+#include <CL/opencl.hpp>
 #endif
 
 #ifndef ML_PROJECT_CPP_CLHELPER_H

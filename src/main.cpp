@@ -1,4 +1,5 @@
 
+
 #include "ClHelper.h"
 #include "Model.h"
 #include <iostream>
@@ -7,10 +8,16 @@
 #include "MNIST/mnist_loader.h"
 #include <fstream>
 
+
 #else
-#include <CL/cl.h>
+#include <CL/opencl.hpp>
 #endif
 
+#define CL_HPP_TARGET_OPENCL_VERSION 200
+#define CL_HPP_CL_1_2_DEFAULT_BUILD
+#include "MNIST/mnist_loader.h"
+#include <fstream>
+#include <chrono>
 
 void printweights(const Model& m){
     int size = m.getDimSizes()[1];
@@ -81,7 +88,6 @@ void printseg(std::vector<float> seg){
 
 
 int main() {
-
     mnist_loader train("dataset/train-images-idx3-ubyte",
                        "dataset/train-labels-idx1-ubyte", 10000);
     mnist_loader test("dataset/t10k-images-idx3-ubyte",
@@ -92,7 +98,7 @@ int main() {
     Model model(0.1, dim);
 
 
-    int num_segments = 10000;
+    int num_segments = 100000;
     std::vector<float> segments;
     for (int i = 0; i < num_segments; ++i) {
         auto segment = train.image_segment();
@@ -100,26 +106,23 @@ int main() {
     }
 
     auto start = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < 100; ++i) {
-        model.dhl_full_gpu(segments.data() + (25*100*i), 25, 100, 2);
+    //for (int i = 0; i < 100; ++i) {
+        model.dhl_full_gpu(segments.data(), 25, 10000, 2);
 
-    }
+    //}
     auto end = std::chrono::high_resolution_clock::now();
     auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     std::cout << int_ms.count() << std::endl;
 
 
-
-    /*auto start_CPU = std::chrono::high_resolution_clock::now();
-    for(int i = 0; i<10000; ++i){
+/*
+    auto start_CPU = std::chrono::high_resolution_clock::now();
+    for(int i = 0; i<num_segments; ++i){
         model.decorrelated_hebbian_learning_CPU(train.image_segment().data(), 25);
     }
     auto end_CPU = std::chrono::high_resolution_clock::now();
-    auto int_ms_CPU = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << int_ms_CPU.count() << std::endl;*/
-
-
-
+    auto int_ms_CPU = std::chrono::duration_cast<std::chrono::milliseconds>(end_CPU - start_CPU);
+    std::cout << int_ms_CPU.count() << std::endl; */
 
     return 0;
 }
