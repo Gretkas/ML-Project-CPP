@@ -98,20 +98,25 @@ int main() {
         auto segment = train.image_segment();
         segments.insert(segments.end(), segment.begin(), segment.end());
     }
-    printweights(model);
+
+    auto start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < 100; ++i) {
         model.dhl_full_gpu(segments.data() + (25*100*i), 25, 100, 2);
-        printweights(model);
 
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << int_ms.count() << std::endl;
 
+
+
+    /*auto start_CPU = std::chrono::high_resolution_clock::now();
     for(int i = 0; i<10000; ++i){
         model.decorrelated_hebbian_learning_CPU(train.image_segment().data(), 25);
-        if(i%100 == 0){
-            printweights(model);
-        }
     }
-    printweights(model);
+    auto end_CPU = std::chrono::high_resolution_clock::now();
+    auto int_ms_CPU = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << int_ms_CPU.count() << std::endl;*/
 
 
 
