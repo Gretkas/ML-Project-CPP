@@ -35,10 +35,10 @@ set (CLKernelName "Kernels")
 # Specify the executable ant its source files
 add_executable(ML_project_cpp src/main.cpp src/Model.cpp src/Model.h src/ClHelper.cpp src/ClHelper.h src/main.cpp src/MNIST/mnist_loader.cpp src/MNIST/mnist_loader.h)
 
-#target_sources (HostApplication
-#        PRIVATE
-#        someSource.cpp
-#        )
+##target_sources (HostApplication
+##        PRIVATE
+##       main.cpp
+##       )
 
 # For FPGA SoC Builds, specify the board type and the config
 set (BoardType           "de10_standard")
@@ -74,7 +74,7 @@ if (OPEN_CL_INTEL_FPGA)
     add_compile_definitions (CL_HPP_MINIMUM_OPENCL_VERSION=110 CL_HPP_TARGET_OPENCL_VERSION=200)
 
     # According to the reverse engineering, those libraries are needed for FPGA builds
-    target_link_libraries (HostApplication rt pthread)
+    target_link_libraries (ML_project_cpp rt pthread)
 
     # The compiled kernel binary should be placed next to the host binary
     # (you might want to change this according to your needs)
@@ -142,7 +142,8 @@ else() # Building for standard CPU/GPU Platforms
         # Open CL is deprecated since Mac OS Mojave, this silences compiler warnings regarding this
         add_compile_definitions (CL_SILENCE_DEPRECATION)
     else()
-        add_compile_definitions (CL_HPP_MINIMUM_OPENCL_VERSION=120 CL_HPP_TARGET_OPENCL_VERSION=200)
+        add_compile_definitions (CL_HPP_MINIMUM_OPENCL_VERSION=120 CL_HPP_TARGET_OPENCL_VERSION=120)
+        add_compile_definitions (CL_SILENCE_DEPRECATION)
     endif()
 
     if (WIN32)
@@ -170,10 +171,10 @@ else() # Building for standard CPU/GPU Platforms
             message (FATAL_ERROR "Neither Intel nor NVIDIA nor AMD OpenCL SDK for Windows was found. Install one of those")
         endif()
 
-        target_link_libraries (HostApplication "${WINDOWS_OPEN_CL_LIB_LOCATION}/opencl.lib")
+        target_link_libraries (ML_project_cpp "${WINDOWS_OPEN_CL_LIB_LOCATION}/opencl.lib")
 
     elseif (NOT APPLE)
-        target_link_libraries (HostApplication pthread OpenCL)
+        target_link_libraries (ML_project_cpp pthread OpenCL)
     endif()
 
 endif()

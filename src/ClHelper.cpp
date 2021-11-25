@@ -1,10 +1,6 @@
 //
 // Created by Sergio Martinez on 31/10/2021.
 //
-
-
-
-#include <string>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -12,8 +8,10 @@
 #include <OpenCL/opencl.hpp>
 
 #else
-#include <CL/cl.h>
+#include <cassert>
+#include <CL/opencl.hpp>
 #endif
+
 
 cl::Program createProgram( const std::string& file){
     std::vector<cl::Platform> platforms;

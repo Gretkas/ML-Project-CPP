@@ -14,7 +14,9 @@
 #include <fstream>
 
 #else
-#include <CL/cl.h>
+#include <CL/opencl.hpp>
+#include <cassert>
+
 #endif
 
 
@@ -470,7 +472,7 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
 
     }
     exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)weights);
-    cl::finish();
+    queue.finish();
 }
 
 
