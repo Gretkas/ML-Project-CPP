@@ -53,10 +53,10 @@ RM = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP
+CMAKE_SOURCE_DIR = /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug
+CMAKE_BINARY_DIR = /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug
 
 # Include any dependencies generated for this target.
 include CMakeFiles/ML_project_cpp.dir/depend.make
@@ -68,55 +68,55 @@ include CMakeFiles/ML_project_cpp.dir/flags.make
 
 CMakeFiles/ML_project_cpp.dir/src/main.cpp.o: CMakeFiles/ML_project_cpp.dir/flags.make
 CMakeFiles/ML_project_cpp.dir/src/main.cpp.o: ../src/main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/ML_project_cpp.dir/src/main.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ML_project_cpp.dir/src/main.cpp.o -c /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/ML_project_cpp.dir/src/main.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ML_project_cpp.dir/src/main.cpp.o -c /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/main.cpp
 
 CMakeFiles/ML_project_cpp.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ML_project_cpp.dir/src/main.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/main.cpp > CMakeFiles/ML_project_cpp.dir/src/main.cpp.i
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/main.cpp > CMakeFiles/ML_project_cpp.dir/src/main.cpp.i
 
 CMakeFiles/ML_project_cpp.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ML_project_cpp.dir/src/main.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/main.cpp -o CMakeFiles/ML_project_cpp.dir/src/main.cpp.s
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/main.cpp -o CMakeFiles/ML_project_cpp.dir/src/main.cpp.s
 
 CMakeFiles/ML_project_cpp.dir/src/Model.cpp.o: CMakeFiles/ML_project_cpp.dir/flags.make
 CMakeFiles/ML_project_cpp.dir/src/Model.cpp.o: ../src/Model.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/ML_project_cpp.dir/src/Model.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ML_project_cpp.dir/src/Model.cpp.o -c /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/Model.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/ML_project_cpp.dir/src/Model.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ML_project_cpp.dir/src/Model.cpp.o -c /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/Model.cpp
 
 CMakeFiles/ML_project_cpp.dir/src/Model.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ML_project_cpp.dir/src/Model.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/Model.cpp > CMakeFiles/ML_project_cpp.dir/src/Model.cpp.i
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/Model.cpp > CMakeFiles/ML_project_cpp.dir/src/Model.cpp.i
 
 CMakeFiles/ML_project_cpp.dir/src/Model.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ML_project_cpp.dir/src/Model.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/Model.cpp -o CMakeFiles/ML_project_cpp.dir/src/Model.cpp.s
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/Model.cpp -o CMakeFiles/ML_project_cpp.dir/src/Model.cpp.s
 
 CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.o: CMakeFiles/ML_project_cpp.dir/flags.make
 CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.o: ../src/ClHelper.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.o -c /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/ClHelper.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.o -c /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/ClHelper.cpp
 
 CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/ClHelper.cpp > CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.i
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/ClHelper.cpp > CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.i
 
 CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/ClHelper.cpp -o CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.s
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/ClHelper.cpp -o CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.s
 
 CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.o: CMakeFiles/ML_project_cpp.dir/flags.make
 CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.o: ../src/MNIST/mnist_loader.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.o -c /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/MNIST/mnist_loader.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.o -c /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/MNIST/mnist_loader.cpp
 
 CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/MNIST/mnist_loader.cpp > CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.i
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/MNIST/mnist_loader.cpp > CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.i
 
 CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/MNIST/mnist_loader.cpp -o CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.s
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/MNIST/mnist_loader.cpp -o CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.s
 
 # Object files for target ML_project_cpp
 ML_project_cpp_OBJECTS = \
@@ -134,7 +134,7 @@ ML_project_cpp: CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.o
 ML_project_cpp: CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.o
 ML_project_cpp: CMakeFiles/ML_project_cpp.dir/build.make
 ML_project_cpp: CMakeFiles/ML_project_cpp.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable ML_project_cpp"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable ML_project_cpp"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ML_project_cpp.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -146,6 +146,6 @@ CMakeFiles/ML_project_cpp.dir/clean:
 .PHONY : CMakeFiles/ML_project_cpp.dir/clean
 
 CMakeFiles/ML_project_cpp.dir/depend:
-	cd /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug/CMakeFiles/ML_project_cpp.dir/DependInfo.cmake --color=$(COLOR)
+	cd /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug/CMakeFiles/ML_project_cpp.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ML_project_cpp.dir/depend
 

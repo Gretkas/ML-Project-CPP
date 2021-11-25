@@ -8,10 +8,10 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/ClHelper.cpp" "/Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug/CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.o"
-  "/Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/MNIST/mnist_loader.cpp" "/Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug/CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.o"
-  "/Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/Model.cpp" "/Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug/CMakeFiles/ML_project_cpp.dir/src/Model.cpp.o"
-  "/Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/src/main.cpp" "/Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug/CMakeFiles/ML_project_cpp.dir/src/main.cpp.o"
+  "/Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/ClHelper.cpp" "/Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug/CMakeFiles/ML_project_cpp.dir/src/ClHelper.cpp.o"
+  "/Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/MNIST/mnist_loader.cpp" "/Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug/CMakeFiles/ML_project_cpp.dir/src/MNIST/mnist_loader.cpp.o"
+  "/Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/Model.cpp" "/Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug/CMakeFiles/ML_project_cpp.dir/src/Model.cpp.o"
+  "/Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/src/main.cpp" "/Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug/CMakeFiles/ML_project_cpp.dir/src/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "AppleClang")
 

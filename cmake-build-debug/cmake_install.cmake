@@ -1,4 +1,4 @@
-# Install script for directory: /Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP
+# Install script for directory: /Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/sergiomartinez/Documents/ML/prosjekt/ML-Project-CPP/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/sergiomartinez/Documents/ML/prosjekt/test/ML-Project-CPP/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
