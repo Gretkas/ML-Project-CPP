@@ -1,7 +1,7 @@
 # ML-Project-CPP
 
 ## Requirements
-OpenCL headers and c++ bindings for your OS. For MacOS you can follow this guide: https://ham.id.au/getting-started-with-opencl-and-cpp-on-macos-catalina/. 
+OpenCL headers and c++ bindings for your OS. For MacOS you can follow this guide: https://ham.id.au/getting-started-with-opencl-and-cpp-on-macos-catalina/ \
 MNIST dataset: http://yann.lecun.com/exdb/mnist/
 
 ## Setup
