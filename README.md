@@ -1,7 +1,7 @@
 # ML-Project-CPP
 
 ## Requirements
-OpenCL headers and c++ bindings for your OS.
+OpenCL headers and c++ bindings for your OS.  
 MNIST dataset
 
 ## Setup
