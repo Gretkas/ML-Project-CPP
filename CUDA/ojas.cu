@@ -89,7 +89,7 @@ __host__ void run_ojas(float *w, std::vector<float> vec_x, const int num, const 
         num_blocks = (num_neurons + num_treads) / num_treads;
     }
     cudaProfilerStart();
-    if (par_y) {
+    if (!par_y) {
         ojas_rule<<<num_blocks, num_treads>>>(d_x, d_w, learning_rate, num, len, num_neurons);
     } else {
         ojas_rule_par<<<num_blocks, num_treads>>>(d_x, d_w, learning_rate, num, len, num_neurons);
