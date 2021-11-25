@@ -1,5 +1,19 @@
 # ML-Project-CPP
 
+## Requirements
+OpenCL headers and c++ bindings for your OS.  
+MNIST dataset
+
+## Setup
+```
+git clone https://github.com/Gretkas/ML-Project-CPP.git
+cd ML-Project-CPP
+mkdir build
+cd build
+cmake ..
+make
+```
+after this is done move your MNIST files into a folder call dataset, and move the dataset folder into the build directory.
 
 ## Dependencies
 
