@@ -7,7 +7,7 @@
 
 //må free w og x;
 int main() {
-    const int num_neurons = 10000;            //ant nevroner som trenes
+    const int num_neurons = 100;            //ant nevroner som trenes
     const int num_seg = 100;                  //ant segmenter/bilder
     const int len = 25;                       //lengden på et segment/bilde
     float *w = generate_w(len * num_neurons); // skal bare være 25 lang * ant nevroner
