@@ -1,4 +1,4 @@
-#include "../src/MNIST/mnist_loader.cpp"
+#include "MNIST/mnist_loader.cpp"
 #include <random>
 #include <vector>
 
