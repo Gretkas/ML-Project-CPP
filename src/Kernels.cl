@@ -41,7 +41,7 @@ void kernel sum_helper_with_output(global float* data,global float* out, const i
 }
 
 
-
+// inspired by : https://dournac.org/info/gpu_sum_reduction
 __kernel void sum_reduction(__global float* data,__local float* partial_sums, __global float* output)
 {
     int lid = get_local_id(0);
