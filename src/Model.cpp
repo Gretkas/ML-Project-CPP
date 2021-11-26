@@ -228,6 +228,8 @@ int previous_power_of_two( int x ) {
     return x - (x >> 1);
 }
 
+
+
 void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
 
     int exitcode;
@@ -250,7 +252,7 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
     auto y_sum = static_cast<float *>(malloc(1 * sizeof(float *)));
     auto expo = static_cast<float *>(malloc(memsize_w * sizeof(float *)));
 
-    //initialize all buffers
+    //initialize all buffers, memory is allocated on the GPU here
     cl::Buffer buf_W(context,
                      CL_MEM_READ_WRITE| CL_MEM_HOST_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                      sizeof(float) * memsize_w,
@@ -396,13 +398,16 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
     cl::CommandQueue queue(context, device);
 
     //iterate over all image segments in batch
+    //Data will be copied to GPU memory the first time each kernel is called,
+    //after which it wont be read untill enqueueReadBuffer is called after the for loop
     for (int i = 0; i < num_segments; ++i) {
 
+        //calulate x-w for the exponents in the y formula
         exitcode = queue.enqueueNDRangeKernel(kernel_exponent_vector, cl::NDRange(len*i), cl::NDRange(memsize_w), cl::NDRange(len));
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
-
+        //if size of input is not 2^n it needs to be folded so parallel sum reduction can be used
         if(surplus_1 != 0){
             exitcode = queue.enqueueNDRangeKernel(kernel_sum_helper, cl::NullRange, cl::NDRange(previous_power_of_two(memsize_w)), cl::NDRange(
                     previous_power_of_two(len)));
@@ -410,20 +415,20 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
             queue.finish();
         }
 
-
+        //sum all x-w from last step
         //TODO this only works for small vectors, fix later if time
         exitcode = queue.enqueueNDRangeKernel(kernel_sum_exponent, cl::NullRange, cl::NDRange(previous_power_of_two(len)*_dim_sizes[0]), cl::NDRange(wg_size_1));
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
 
-
+        //exponentiate and divide by sigma
         exitcode = queue.enqueueNDRangeKernel(kernel_y_helper_fraction, cl::NullRange, cl::NDRange(_dim_sizes[0]));
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
 
-
+        //if size of input is not 2^n it needs to be folded so parallel sum reduction can be used
         if(surplus_2 != 0){
             exitcode = queue.enqueueNDRangeKernel(kernel_sum_helper_with_output_divisor, cl::NullRange, cl::NDRange(previous_power_of_two(_dim_sizes[0])));
             assert(exitcode == CL_SUCCESS);
@@ -431,46 +436,47 @@ void Model::dhl_full_gpu(float *x, int len, int num_segments, float sigma) {
         }
 
 
-
+        //sum all exponentials from last step to find divisor of y
         //TODO this only works for small vectors, fix later if time
         exitcode = queue.enqueueNDRangeKernel(kernel_sum_divisor, cl::NullRange, cl::NDRange(previous_power_of_two(_dim_sizes[0])), cl::NDRange(wg_size_2));
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
 
-
+        //compute all y values
         exitcode = queue.enqueueNDRangeKernel(kernel_y, cl::NullRange, cl::NDRange(_dim_sizes[0]));
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
 
 
-
+        // compute all y^2 and fold to a size of 2^n and compute
         exitcode = queue.enqueueNDRangeKernel(kernel_sum_helper_with_output_y_sum, cl::NullRange, cl::NDRange(previous_power_of_two(_dim_sizes[0])));
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
 
 
-
+        //sum results from last step
         //TODO this only works for small vectors, fix later if time
         exitcode = queue.enqueueNDRangeKernel(kernel_sum_y, cl::NullRange, cl::NDRange(previous_power_of_two(_dim_sizes[0])), cl::NDRange(wg_size_2));
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
 
-
+        //compute weight changes
         exitcode = queue.enqueueNDRangeKernel(kernel_dhl, cl::NDRange(len*i), cl::NDRange(memsize_w), cl::NDRange(len));
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
 
-
+        //reset buffers on GPU so we dont need to read them
         exitcode = queue.enqueueNDRangeKernel(kernel_reset_y, cl::NullRange, cl::NDRange(_dim_sizes[0]));
         assert(exitcode == CL_SUCCESS);
         queue.finish();
 
     }
+    //read weights from GPU and write to model weights
     exitcode = queue.enqueueReadBuffer(buf_W, CL_TRUE, 0, sizeof(float) * memsize_w, (void *)weights);
     queue.finish();
 }

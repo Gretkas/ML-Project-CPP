@@ -12,7 +12,9 @@
 #include <CL/opencl.hpp>
 #endif
 
-
+/*
+ * Sets up a context which can be used to initialize kernels
+ */
 cl::Program createProgram( const std::string& file){
     std::vector<cl::Platform> platforms;
     cl::Platform::get(&platforms);
